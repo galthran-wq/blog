@@ -32,14 +32,14 @@
     "href": "posts/2025-09-25-test/index.html#interactive-plot-with-hide-input",
     "title": "Test: Math + Python (Notebook)",
     "section": "Interactive plot with hide input",
-    "text": "Interactive plot with hide input\n\nimport plotly.express as px\n\ndf = px.data.iris()\nfig = px.scatter(\n    df, x=\"sepal_width\", y=\"sepal_length\",\n    color=\"species\", title=\"Interactive Iris Scatter\", height=420\n)\nfig  # returning the figure renders it interactively"
+    "text": "Interactive plot with hide input"
   },
   {
     "objectID": "posts/2025-09-25-test/index.html#with-slider",
     "href": "posts/2025-09-25-test/index.html#with-slider",
     "title": "Test: Math + Python (Notebook)",
     "section": "With-slider",
-    "text": "With-slider\n\nimport numpy as np\nimport matplotlib.pyplot as plt\nfrom ipywidgets import interact, FloatSlider\n\ndef plot_parabola(a=1.0):\n    x = np.linspace(-3, 3, 200)\n    y = a*x**2 - 3*x + 2\n    plt.figure(figsize=(5,3))\n    plt.plot(x, y)\n    plt.title(f\"y = {a:.1f}·x² - 3x + 2\")\n    plt.grid(True)\n    plt.show()\n\ninteract(plot_parabola, a=FloatSlider(min=-2, max=2, step=0.1, value=1.0))\n\n\n\n\n&lt;function __main__.plot_parabola(a=1.0)&gt;"
+    "text": "With-slider\n\nimport plotly.express as px\ndf = px.data.gapminder()\nfig = px.scatter(\n    df, x=\"gdpPercap\", y=\"lifeExp\",\n    animation_frame=\"year\", animation_group=\"country\",\n    size=\"pop\", color=\"continent\", hover_name=\"country\",\n    log_x=True, size_max=45, range_x=[100, 100000], range_y=[25, 90],\n    title=\"Gapminder (use slider)\"\n)\nfig"
   },
   {
     "objectID": "myblog.html",
