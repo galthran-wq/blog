@@ -1,5 +1,16 @@
 ---
 title: "myblog"
+listing:
+  contents: posts
+  sort: "date desc"
+  type: table
+  fields: [date, title, categories]
+  field-links: [title]
+  field-display-names:
+    date: "Date"
+    title: "Post"
+    categories: "Tags"
+  date-format: "MMM d, yyyy"
 ---
 
 ## Quarto

@@ -1,5 +1,22 @@
 project:
   title: "myblog"
+  type: website
 
+website:
+  title: "myblog"
+  search:
+    location: navbar
+    type: overlay
+  navbar:
+    right:
+      - text: Home
+        href: myblog.qmd
+      - icon: rss
+        href: myblog.xml
 
-
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: darkly
+    toc: true
