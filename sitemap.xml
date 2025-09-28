@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://galthran-wq.github.io/blog/posts/2025-09-25-test/index.html</loc>
-    <lastmod>2025-09-25T19:31:38.156Z</lastmod>
+    <loc>https://galthran-wq.github.io/blog/posts/2025-09-25-learn-autogressive-model-on-images/index.html</loc>
+    <lastmod>2025-09-28T09:59:07.649Z</lastmod>
   </url>
   <url>
     <loc>https://galthran-wq.github.io/blog/myblog.html</loc>
     <lastmod>2025-09-25T18:53:36.983Z</lastmod>
+  </url>
+  <url>
+    <loc>https://galthran-wq.github.io/blog/posts/2025-09-25-test/index.html</loc>
+    <lastmod>2025-09-28T10:01:23.465Z</lastmod>
   </url>
 </urlset>

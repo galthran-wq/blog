@@ -1,5 +1,61 @@
 [
   {
+    "objectID": "posts/2025-09-25-learn-autogressive-model-on-images/index.html",
+    "href": "posts/2025-09-25-learn-autogressive-model-on-images/index.html",
+    "title": "Learn Autogressive Model on Images",
+    "section": "",
+    "text": "Wouldn’t it be nice to learn a distribution \\(P(X)\\) of a certain set of images, for simplicity, the images of digits?\nYou would be able to:\n\nGenerate new images of digits\nSay how like an image is from the same distribution (that is, also a digit)\ninpaint missing image details\n\nIt does not seem like a trivial task.\nAssume image is \\(\\sqrt{n} \\times \\sqrt{n}\\) pixels, each one black or white; enumerate them from the top left to bottom right \\(\\{ X_1, ..., X_{n}\\}\\)\nIf we make no assumption about the underlaying distribution, it would take \\(2^n-1\\) parameters to model it, since each pixel in this image can be either black or white with a certain probability \\(p_i\\)."
+  },
+  {
+    "objectID": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#the-problem",
+    "href": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#the-problem",
+    "title": "Learn Autogressive Model on Images",
+    "section": "",
+    "text": "Wouldn’t it be nice to learn a distribution \\(P(X)\\) of a certain set of images, for simplicity, the images of digits?\nYou would be able to:\n\nGenerate new images of digits\nSay how like an image is from the same distribution (that is, also a digit)\ninpaint missing image details\n\nIt does not seem like a trivial task.\nAssume image is \\(\\sqrt{n} \\times \\sqrt{n}\\) pixels, each one black or white; enumerate them from the top left to bottom right \\(\\{ X_1, ..., X_{n}\\}\\)\nIf we make no assumption about the underlaying distribution, it would take \\(2^n-1\\) parameters to model it, since each pixel in this image can be either black or white with a certain probability \\(p_i\\)."
+  },
+  {
+    "objectID": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#a-solution",
+    "href": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#a-solution",
+    "title": "Learn Autogressive Model on Images",
+    "section": "A solution",
+    "text": "A solution\nA common trick is to use the chain rule\n\\[P(X_1, ..., X_n) = P(X_1) P(X_2|X_1) ... P(X_n|X_1,X_2,...,X_{n-1})\\]\nand then, in a sort of “discriminative manner” to model\n\\[P(X_i|X_1...X_{i-1}) = f_i(X_1, ..., X_{i-1}; \\theta_i)\\]\nThis would be an example of an autoregressive model.\nNote that the function \\(f_i\\) and the set of parameters for this function \\(\\theta_i\\) might be different for each of those terms.\nSome easy example would be to just let\n\\[P(X_i|X_1...X_{i-1}) = \\sigma(\\theta_{i1} X_1 + \\theta_{i2} X_2 + ... + \\theta_{i,i-1} X_{i-1} + \\theta_{i0})\\]\nThis is essentially a separate logistic regression for each pixel, conditioned on all previous pixels.\nThe number of parameters in this model is \\(\\frac{n^2}{2}\\).\nA bit better seems to have just a dense representation for the previous pixels with a linear linear like\n\\[P(X_i|X_1...X_{i-1}) = \\sigma(\\theta_i^T h(W_{:,1} X_1 + W_{:,2} X_2 + ... + W_{:,i-1} X_{i-1})) = \\sigma(\\theta_i^T h(W X_{1:i-1}))\\]\nIn this case we are still taking a linear combination, but now of a hidden state of fixed size. The number of parameters in this model is \\(2DH + D + H\\), which scales linearly with the number of pixels in the image."
+  },
+  {
+    "objectID": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#a-demo",
+    "href": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#a-demo",
+    "title": "Learn Autogressive Model on Images",
+    "section": "A demo",
+    "text": "A demo\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nIt is interesting"
+  },
+  {
+    "objectID": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#nade",
+    "href": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#nade",
+    "title": "Learn Autogressive Model on Images",
+    "section": "NADE",
+    "text": "NADE"
+  },
+  {
+    "objectID": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#limitations",
+    "href": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#limitations",
+    "title": "Learn Autogressive Model on Images",
+    "section": "Limitations",
+    "text": "Limitations\nWhat the autoregressive model cannot give us:\n\nGet a representation of an image.\n\nSome dense vector (dim significantly less then the image) we could use in other applications\n\nAssess similarity of images (almost same as 1.)\n\nSome function \\(f\\) such that similarity would presumably be high for the same digits, but written differently and somewhat high for digits that are just written similarly to each other.\n\nDiscover some underlying structure in the data (e.g., clusters) (almost same as 1.)\n\nFor example, being able to tell what digit is on the image.\n\nGuided generation.\n\nBeing able to generate image of a certain digit, or a digit of a certain style."
+  },
+  {
+    "objectID": "myblog.html",
+    "href": "myblog.html",
+    "title": "myblog",
+    "section": "",
+    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
+  },
+  {
+    "objectID": "myblog.html#quarto",
+    "href": "myblog.html#quarto",
+    "title": "myblog",
+    "section": "",
+    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
+  },
+  {
     "objectID": "posts/2025-09-25-test/index.html",
     "href": "posts/2025-09-25-test/index.html",
     "title": "Test: Math + Python (Notebook)",
@@ -40,19 +96,5 @@
     "title": "Test: Math + Python (Notebook)",
     "section": "With-slider",
     "text": "With-slider\n\nimport plotly.express as px\ndf = px.data.gapminder()\nfig = px.scatter(\n    df, x=\"gdpPercap\", y=\"lifeExp\",\n    animation_frame=\"year\", animation_group=\"country\",\n    size=\"pop\", color=\"continent\", hover_name=\"country\",\n    log_x=True, size_max=45, range_x=[100, 100000], range_y=[25, 90],\n    title=\"Gapminder (use slider)\"\n)\nfig"
-  },
-  {
-    "objectID": "myblog.html",
-    "href": "myblog.html",
-    "title": "myblog",
-    "section": "",
-    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
-  },
-  {
-    "objectID": "myblog.html#quarto",
-    "href": "myblog.html#quarto",
-    "title": "myblog",
-    "section": "",
-    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
   }
 ]
