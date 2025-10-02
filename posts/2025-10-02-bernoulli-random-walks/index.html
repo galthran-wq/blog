@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2025-10-02">
+<meta name="description" content="Some common misconception about coin tossing">
 
-<title>myblog</title>
+<title>Bernoulli Random Walks – myblog</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,30 +25,28 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dc55a5b9e770e841cd82e46aadbfb9b0.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-b651517ce65839d647a86e2780455cfb.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dc55a5b9e770e841cd82e46aadbfb9b0.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-6b99c554a1e37ee0b762a34660148996.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-8e18017f3f3b5435db4a4b6dd362f15d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="site_libs/bootstrap/bootstrap-6b99c554a1e37ee0b762a34660148996.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dc55a5b9e770e841cd82e46aadbfb9b0.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b651517ce65839d647a86e2780455cfb.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dc55a5b9e770e841cd82e46aadbfb9b0.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-6b99c554a1e37ee0b762a34660148996.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-8e18017f3f3b5435db4a4b6dd362f15d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-6b99c554a1e37ee0b762a34660148996.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -73,35 +73,6 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
-
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-title-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -304,9 +275,9 @@ window.Quarto = {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="./index.html" class="navbar-brand navbar-brand-logo">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
     </a>
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">myblog</span>
     </a>
   </div>
@@ -317,11 +288,11 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./myblog.html" aria-current="page"> 
+    <a class="nav-link" href="../../myblog.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="./myblog.xml"> <i class="bi bi-rss" role="img">
+    <a class="nav-link" href="../../myblog.xml"> <i class="bi bi-rss" role="img">
 </i> 
 <span class="menu-text"></span></a>
   </li>  
@@ -342,7 +313,7 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#quarto" id="toc-quarto" class="nav-link active" data-scroll-target="#quarto">Quarto</a></li>
+  <li><a href="#so-why-did-our-intuition-fail-us" id="toc-so-why-did-our-intuition-fail-us" class="nav-link active" data-scroll-target="#so-why-did-our-intuition-fail-us">So why did our intuition fail us?</a></li>
   </ul>
 </nav>
     </div>
@@ -352,14 +323,28 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">myblog</h1>
-</div>
+<h1 class="title">Bernoulli Random Walks</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">probability theory</div>
+  </div>
+  </div>
 
+<div>
+  <div class="description">
+    Some common misconception about coin tossing
+  </div>
+</div>
 
 
 <div class="quarto-title-meta">
 
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 2, 2025</p>
+    </div>
+  </div>
   
     
   </div>
@@ -369,100 +354,93 @@ window.Quarto = {
 </header>
 
 
-<section id="quarto" class="level2">
-<h2 class="anchored" data-anchor-id="quarto">Quarto</h2>
-<p>Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <a href="https://quarto.org" class="uri">https://quarto.org</a>.</p>
-
+<p>Here is one of the most common misconceptions that I see people have when thinking about probability, in particular repeated coin tosses:</p>
+<p>“Tossing a fair coin n times will give you roughly the same number of heads and tails.”</p>
+<p>To formalize, let’s say you have iid <span class="math inline">\(X_1, \dots, X_n\)</span>, where <span class="math inline">\(X_i \sim Bi(p)\)</span>, that is, <span class="math inline">\(X_i = \begin{cases} 1, &amp; p \\ -1, &amp; 1-p \end{cases}\)</span>.</p>
+<p>Lets define the walk <span class="math inline">\(S_t=\sum_{i}^t X_i\)</span>.</p>
+<p>then, the assertion is <span class="math inline">\(P(S_n = 0) \text{ is high}\)</span></p>
+<p>In fact, the opposite is true:</p>
+<p><span class="math inline">\(P(S_n=0) = \frac{\binom{n}{n/2}}{2^n} \sim \sqrt{\frac{2}{\pi n}} \to 0\)</span> as <span class="math inline">\(n \to \infty\)</span></p>
+<p>For example, <span class="math inline">\(n=10: 0.246, n=100: \sim 0.08, n=1000: \sim 0.025\)</span></p>
+<p>We test our intuition today with a little experiment.</p>
+<p>We are going to be looking at trajectories, where each point is <span class="math inline">\((t, S_t)\)</span>.</p>
+<p>If <span class="math inline">\(S_t\)</span> is zero, then we have the same number of tails and heads at time <span class="math inline">\(t\)</span>.</p>
+<p>Our intuition tells us:</p>
+<ul>
+<li><p>The most probable trajectory for a series of coin tosses is when we have some fluctuations at the start (say, first 30 or 100 steps), but then it oscilates around 0.</p></li>
+<li><p>The last tie in a series of coin tosses is very close to <span class="math inline">\(n\)</span> (near the end).</p></li>
+<li><p>Around half of the time the trajectory will spend on “the positive” side (that is, <span class="math inline">\(S_t &gt; 0\)</span> for half the <span class="math inline">\(t\)</span>’s)</p></li>
+<li><p>The lead changes frequently</p></li>
+<li><p>Streaks are unlikely: we not spend much time on either side.</p></li>
+<li><p>Gambler’s fallacy: being far from 0 makes a quick return to 0 more likely.</p></li>
+<li><p>The maximum displacement, <span class="math inline">\(max_t|S_t|\)</span> is small.</p></li>
+</ul>
+<p>Here is somewhat our expectations summarized:</p>
+<div id="9579c917" class="cell" data-execution_count="60">
+<div class="cell-output cell-output-display" data-execution_count="60">
+<pre><code>Text(0, 0.5, 'S_t')</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-2-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>And here are the actual trajectories:</p>
+<div id="96966e24" class="cell" data-execution_count="49">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-3-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>And here are the distributions of some core statistics:</p>
+<div id="370f90dd" class="cell" data-execution_count="57">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-4-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>What this shows:</p>
+<ul>
+<li><p><strong>Last tie is not near the end</strong>: actually, it follows the <strong>arcsine law</strong>, the distribution is symmetric, with high probabilities of both start and end.</p></li>
+<li><p><strong>It is very unlikely to spend half of the time on either side</strong>: it follows the same arcsine law: all positive and all negative are the most likely values.</p></li>
+<li><p><strong>Lead changes are not “frequent” in a linear sense</strong>: the number of sign flips is on the order of <span class="math inline">\(\sqrt{n}\)</span></p></li>
+<li><p><strong>Long streaks are expected</strong>: the longest run grows like <span class="math inline">\(\log_2 n\)</span>.</p></li>
+<li><p><strong>No mean-reversion force</strong>: the last axis show that regardless of the displacement, the probability of taking a step towards zero is <span class="math inline">\(0.5\)</span>. This is trivial, of course, since the steps we take are independent.</p></li>
+</ul>
+<section id="so-why-did-our-intuition-fail-us" class="level2">
+<h2 class="anchored" data-anchor-id="so-why-did-our-intuition-fail-us">So why did our intuition fail us?</h2>
+<p>The random walk is fair in the sense that <span class="math inline">\(E[S_n]=0\)</span> and the ditribution of <span class="math inline">\(S_n\)</span> is symmetric. Some might find it tempting to assume that it implies “it should stay near 0”.</p>
+<p>Some people might misinterpret the law of large number and think that $S_n $ as <span class="math inline">\(n \rightarrow \inf\)</span>, while what it actually gives us is <span class="math inline">\(S_n/n \rightarrow 0\)</span>, which basically says that the average step tends to zero.</p>
+<p><span class="math inline">\(0\)</span> is indeed the most like value that <span class="math inline">\(S_n\)</span> takes (the mode), but the problem is the distribution of <span class="math inline">\(S_n\)</span> “spread out” as <span class="math inline">\(n\)</span> grows:</p>
+<p><span class="math display">\[Var(S_n) = n\]</span></p>
+<p>So the trajectories will lie in a <span class="math inline">\(\pm\sqrt{t}\)</span> band.</p>
+<p>From CLT, <span class="math inline">\(\frac{S_t}{\sqrt{t}} \rightarrow \mathcal{N}(0, 1)\)</span>, so <span class="math inline">\(P(|S_t|\le 2 \sqrt{t}) \sim 95\%\)</span></p>
+<div id="afc83208" class="cell" data-execution_count="69">
+<div class="cell-output cell-output-display" data-execution_count="69">
+<pre><code>Text(0, 0.5, 'S_t')</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-5-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
 
 
 </section>
 
-<div class="quarto-listing quarto-listing-container-table" id="listing-listing">
-<div class="listing-actions-group">
-   <div class="input-group input-group-sm quarto-listing-sort">
-    <span class="input-group-text"><i class="bi bi-sort-down"></i></span>
-    <select id="listing-listing-sort" class="form-select" aria-label="Order By" onchange="window['quarto-listings']['listing-listing'].sort(this.options[this.selectedIndex].value, { order: this.options[this.selectedIndex].getAttribute('data-direction')})">
-      <option value="" disabled="" selected="" hidden="">Order By</option>
-      <option value="index" data-direction="asc">Default</option>
-      <option value="listing-date-sort" data-direction="asc">
-        Date - Oldest
-      </option>
-      <option value="listing-date-sort" data-direction="desc">
-        Date - Newest
-      </option>
-      <option value="listing-title-sort" data-direction="asc">
-        Post
-      </option>
-    </select>
-  </div>
-    <div class="input-group input-group-sm quarto-listing-filter">
-      <span class="input-group-text"><i class="bi bi-search"></i></span>
-      <input type="text" class="search form-control" placeholder="Filter">
-    </div>
-</div>
-<table class="quarto-listing-table table">
-<thead>
-<tr>
-
-<th>
-<a class="sort" data-sort="listing-date-sort" onclick="if (this.classList.contains('sort-asc')) { this.classList.add('sort-desc'); this.classList.remove('sort-asc') } else { this.classList.add('sort-asc'); this.classList.remove('sort-desc')} return false;">Date</a>
-</th>
-
-<th>
-<a class="sort" data-sort="listing-title-sort" onclick="if (this.classList.contains('sort-asc')) { this.classList.add('sort-desc'); this.classList.remove('sort-asc') } else { this.classList.add('sort-asc'); this.classList.remove('sort-desc')} return false;">Post</a>
-</th>
-
-<th>
-Tags
-</th>
-
-</tr>
-</thead>
-<tbody class="list">
-
-<tr data-index="0" data-categories="cHJvYmFiaWxpdHklMjB0aGVvcnk=" data-listing-date-sort="1759363200000" data-listing-file-modified-sort="1759426291056" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="505" data-listing-title-sort="Bernoulli Random Walks">
-<td>
-<span class="listing-date">Oct 4, yyyy</span>
-</td>
-<td>
-<a href="./posts/2025-10-02-bernoulli-random-walks/index.html" class="title listing-title">Bernoulli Random Walks</a>
-</td>
-<td>
-<span class="listing-categories">probability theory</span>
-</td>
-
-</tr>
-
-<tr data-index="1" data-categories="cHl0aG9uJTJDbWF0aCUyQ2RlbW8=" data-listing-date-sort="1758758400000" data-listing-file-modified-sort="1759426291040" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="39" data-listing-title-sort="Test: Math + Python (Notebook)">
-<td>
-<span class="listing-date">Sep 4, yyyy</span>
-</td>
-<td>
-<a href="./posts/2025-09-25-test/index.html" class="title listing-title">Test: Math + Python (Notebook)</a>
-</td>
-<td>
-<span class="listing-categories">python, math, demo</span>
-</td>
-
-</tr>
-
-<tr data-index="2" data-categories="Z2VuZXJhdGl2ZSUyMG1vZGVsaW5n" data-listing-date-sort="1758758400000" data-listing-file-modified-sort="1759426291072" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="408" data-listing-title-sort="Learn Autogressive Model on Images">
-<td>
-<span class="listing-date">Sep 4, yyyy</span>
-</td>
-<td>
-<a href="./posts/2025-09-25-learn-autogressive-model-on-images/index.html" class="title listing-title">Learn Autogressive Model on Images</a>
-</td>
-<td>
-<span class="listing-categories">generative modeling</span>
-</td>
-
-</tr>
-
-</tbody>
-</table>
-<div class="listing-no-matching d-none">No matching items</div>
-</div></main> <!-- /main -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right

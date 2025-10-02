@@ -42,6 +42,20 @@
     "text": "Limitations\nWhat the autoregressive model cannot give us:\n\nGet a representation of an image.\n\nSome dense vector (dim significantly less then the image) we could use in other applications\n\nAssess similarity of images (almost same as 1.)\n\nSome function \\(f\\) such that similarity would presumably be high for the same digits, but written differently and somewhat high for digits that are just written similarly to each other.\n\nDiscover some underlying structure in the data (e.g., clusters) (almost same as 1.)\n\nFor example, being able to tell what digit is on the image.\n\nGuided generation.\n\nBeing able to generate image of a certain digit, or a digit of a certain style."
   },
   {
+    "objectID": "posts/2025-10-02-bernoulli-random-walks/index.html",
+    "href": "posts/2025-10-02-bernoulli-random-walks/index.html",
+    "title": "Bernoulli Random Walks",
+    "section": "",
+    "text": "Here is one of the most common misconceptions that I see people have when thinking about probability, in particular repeated coin tosses:\n“Tossing a fair coin n times will give you roughly the same number of heads and tails.”\nTo formalize, let’s say you have iid \\(X_1, \\dots, X_n\\), where \\(X_i \\sim Bi(p)\\), that is, \\(X_i = \\begin{cases} 1, & p \\\\ -1, & 1-p \\end{cases}\\).\nLets define the walk \\(S_t=\\sum_{i}^t X_i\\).\nthen, the assertion is \\(P(S_n = 0) \\text{ is high}\\)\nIn fact, the opposite is true:\n\\(P(S_n=0) = \\frac{\\binom{n}{n/2}}{2^n} \\sim \\sqrt{\\frac{2}{\\pi n}} \\to 0\\) as \\(n \\to \\infty\\)\nFor example, \\(n=10: 0.246, n=100: \\sim 0.08, n=1000: \\sim 0.025\\)\nWe test our intuition today with a little experiment.\nWe are going to be looking at trajectories, where each point is \\((t, S_t)\\).\nIf \\(S_t\\) is zero, then we have the same number of tails and heads at time \\(t\\).\nOur intuition tells us:\nHere is somewhat our expectations summarized:\nText(0, 0.5, 'S_t')\nAnd here are the actual trajectories:\nAnd here are the distributions of some core statistics:\nWhat this shows:"
+  },
+  {
+    "objectID": "posts/2025-10-02-bernoulli-random-walks/index.html#so-why-did-our-intuition-fail-us",
+    "href": "posts/2025-10-02-bernoulli-random-walks/index.html#so-why-did-our-intuition-fail-us",
+    "title": "Bernoulli Random Walks",
+    "section": "So why did our intuition fail us?",
+    "text": "So why did our intuition fail us?\nThe random walk is fair in the sense that \\(E[S_n]=0\\) and the ditribution of \\(S_n\\) is symmetric. Some might find it tempting to assume that it implies “it should stay near 0”.\nSome people might misinterpret the law of large number and think that $S_n $ as \\(n \\rightarrow \\inf\\), while what it actually gives us is \\(S_n/n \\rightarrow 0\\), which basically says that the average step tends to zero.\n\\(0\\) is indeed the most like value that \\(S_n\\) takes (the mode), but the problem is the distribution of \\(S_n\\) “spread out” as \\(n\\) grows:\n\\[Var(S_n) = n\\]\nSo the trajectories will lie in a \\(\\pm\\sqrt{t}\\) band.\nFrom CLT, \\(\\frac{S_t}{\\sqrt{t}} \\rightarrow \\mathcal{N}(0, 1)\\), so \\(P(|S_t|\\le 2 \\sqrt{t}) \\sim 95\\%\\)\n\n\nText(0, 0.5, 'S_t')"
+  },
+  {
     "objectID": "myblog.html",
     "href": "myblog.html",
     "title": "myblog",
