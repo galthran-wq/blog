@@ -20,3 +20,5 @@ format:
       light: cosmo
       dark: darkly
     toc: true
+
+jupyter: ".venv"
