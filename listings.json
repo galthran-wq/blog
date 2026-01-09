@@ -2,6 +2,7 @@
   {
     "listing": "/myblog.html",
     "items": [
+      "/posts/2025-10-14-diffusion-models/index.html",
       "/posts/2025-10-02-bernoulli-random-walks/index.html",
       "/posts/2025-09-25-test/index.html",
       "/posts/2025-09-25-learn-autogressive-model-on-images/index.html"
