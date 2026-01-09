@@ -1,73 +1,73 @@
 [
   {
-    "objectID": "posts/2025-09-25-learn-autogressive-model-on-images/index.html",
-    "href": "posts/2025-09-25-learn-autogressive-model-on-images/index.html",
-    "title": "Learn Autogressive Model on Images",
+    "objectID": "posts/2026-01-09-mining-association-rules/index.html",
+    "href": "posts/2026-01-09-mining-association-rules/index.html",
+    "title": "Mining Association Rules",
     "section": "",
-    "text": "Wouldn’t it be nice to learn a distribution \\(P(X)\\) of a certain set of images, for simplicity, the images of digits?\nYou would be able to:\n\nGenerate new images of digits\nSay how like an image is from the same distribution (that is, also a digit)\ninpaint missing image details\n\nIt does not seem like a trivial task.\nAssume image is \\(\\sqrt{n} \\times \\sqrt{n}\\) pixels, each one black or white; enumerate them from the top left to bottom right \\(\\{ X_1, ..., X_{n}\\}\\)\nIf we make no assumption about the underlaying distribution, it would take \\(2^n-1\\) parameters to model it, since each pixel in this image can be either black or white with a certain probability \\(p_i\\)."
+    "text": "assume we have a set random variables \\({Z_1, Z_2, \\dots Z_K}\\), \\(Z_i \\in \\{0,1\\}\\)\nWe are interested in events of the form: \\(\\mathbf{P}\\left(\\bigcap_{i \\in \\mathcal{K}} Z_i = 1\\right)\\)\n\\(\\mathcal{K}\\) is called itemset\n\n\nLet \\(A\\) and \\(B\\) be disjoint and complete subsets of \\(\\mathcal{K}\\). Then we can have association rule \\(A \\implies B\\). A is called antecedent, B – consequent.\n\n\nSupport, \\(T(A \\implies B)\\) (also the support of the itemset) – the probability of observing the itemset.\n\\(T(A \\implies B) = \\mathbf{P}\\left(\\bigcap_{i \\in \\mathcal{K}} Z_i = 1\\right)\\)\nConfidence, \\(C(A \\implies B)\\) – how likely is B, given A.\n\\(C(A \\implies B) = \\frac{T(A \\implies B)}{{T(A)}}\\),\nwhere \\(T(A)\\) is defined \\(\\mathbf{P}\\left(\\bigcap_{i \\in \\mathcal{A}} Z_i = 1\\right)\\)\nThe goal is to find assiciation rules with both high support and high confidence.\nWe are going to estimate support and confidence from a set of observations.\n\n\n\n\nIn order to find those association rules, we first find itemsets with high ($&gt; t, t $) support. The choice of \\(t\\) depends on the application.\nThen, we find association rules that we can construct from those itemsets that also have high (\\(&gt; c\\)) confidence\n\n\nis used to find high-support itemsets.\nIt requires \\(t\\) to be relatively high (or the data relatively sparse), so that the number of all resulting itemsets is relatively small,\n\\[|\\{\\mathcal{K} | T(\\mathcal{K}) &gt; t \\}| \\text{is relatively small}\\]\nand it is based on the following observation:\nIf \\(T(\\mathcal{K}) &gt; t\\), then \\(T(\\mathcal{A}) &gt; t\\) for all \\(A \\subset \\mathcal{K}\\)\nThe algorithm:\n\nFind all itemsets \\(A\\) of size 1, such that \\(T(\\mathcal{A} &gt; t)\\)\nDrop all the other items\nReturn to 1, but now form itemsets of size + 1, only from pairs of items that are still present.\n\nWhy the requirement for the cardinality to be small?\nThe number of solution item sets, their size, and the number of passes required over the data can grow exponentially with decreasing size of this lower bound.\nOne limitation of this algorithm – it cannot find rules with low support and high confidence (quite valuable)."
   },
   {
-    "objectID": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#the-problem",
-    "href": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#the-problem",
-    "title": "Learn Autogressive Model on Images",
+    "objectID": "posts/2026-01-09-mining-association-rules/index.html#definition-of-association-rule",
+    "href": "posts/2026-01-09-mining-association-rules/index.html#definition-of-association-rule",
+    "title": "Mining Association Rules",
     "section": "",
-    "text": "Wouldn’t it be nice to learn a distribution \\(P(X)\\) of a certain set of images, for simplicity, the images of digits?\nYou would be able to:\n\nGenerate new images of digits\nSay how like an image is from the same distribution (that is, also a digit)\ninpaint missing image details\n\nIt does not seem like a trivial task.\nAssume image is \\(\\sqrt{n} \\times \\sqrt{n}\\) pixels, each one black or white; enumerate them from the top left to bottom right \\(\\{ X_1, ..., X_{n}\\}\\)\nIf we make no assumption about the underlaying distribution, it would take \\(2^n-1\\) parameters to model it, since each pixel in this image can be either black or white with a certain probability \\(p_i\\)."
+    "text": "Let \\(A\\) and \\(B\\) be disjoint and complete subsets of \\(\\mathcal{K}\\). Then we can have association rule \\(A \\implies B\\). A is called antecedent, B – consequent.\n\n\nSupport, \\(T(A \\implies B)\\) (also the support of the itemset) – the probability of observing the itemset.\n\\(T(A \\implies B) = \\mathbf{P}\\left(\\bigcap_{i \\in \\mathcal{K}} Z_i = 1\\right)\\)\nConfidence, \\(C(A \\implies B)\\) – how likely is B, given A.\n\\(C(A \\implies B) = \\frac{T(A \\implies B)}{{T(A)}}\\),\nwhere \\(T(A)\\) is defined \\(\\mathbf{P}\\left(\\bigcap_{i \\in \\mathcal{A}} Z_i = 1\\right)\\)\nThe goal is to find assiciation rules with both high support and high confidence.\nWe are going to estimate support and confidence from a set of observations."
   },
   {
-    "objectID": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#a-solution",
-    "href": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#a-solution",
-    "title": "Learn Autogressive Model on Images",
-    "section": "A solution",
-    "text": "A solution\nA common trick is to use the chain rule\n\\[P(X_1, ..., X_n) = P(X_1) P(X_2|X_1) ... P(X_n|X_1,X_2,...,X_{n-1})\\]\nand then, in a sort of “discriminative manner” to model\n\\[P(X_i|X_1...X_{i-1}) = f_i(X_1, ..., X_{i-1}; \\theta_i)\\]\nThis would be an example of an autoregressive model.\nNote that the function \\(f_i\\) and the set of parameters for this function \\(\\theta_i\\) might be different for each of those terms.\nSome easy example would be to just let\n\\[P(X_i|X_1...X_{i-1}) = \\sigma(\\theta_{i1} X_1 + \\theta_{i2} X_2 + ... + \\theta_{i,i-1} X_{i-1} + \\theta_{i0})\\]\nThis is essentially a separate logistic regression for each pixel, conditioned on all previous pixels.\nThe number of parameters in this model is \\(\\frac{n^2}{2}\\).\nA bit better seems to have just a dense representation for the previous pixels with a linear linear like\n\\[P(X_i|X_1...X_{i-1}) = \\sigma(\\theta_i^T h(W_{:,1} X_1 + W_{:,2} X_2 + ... + W_{:,i-1} X_{i-1})) = \\sigma(\\theta_i^T h(W X_{1:i-1}))\\]\nIn this case we are still taking a linear combination, but now of a hidden state of fixed size. The number of parameters in this model is \\(2DH + D + H\\), which scales linearly with the number of pixels in the image."
-  },
-  {
-    "objectID": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#a-demo",
-    "href": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#a-demo",
-    "title": "Learn Autogressive Model on Images",
-    "section": "A demo",
-    "text": "A demo\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nIt is interesting"
-  },
-  {
-    "objectID": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#nade",
-    "href": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#nade",
-    "title": "Learn Autogressive Model on Images",
-    "section": "NADE",
-    "text": "NADE"
-  },
-  {
-    "objectID": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#limitations",
-    "href": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#limitations",
-    "title": "Learn Autogressive Model on Images",
-    "section": "Limitations",
-    "text": "Limitations\nWhat the autoregressive model cannot give us:\n\nGet a representation of an image.\n\nSome dense vector (dim significantly less then the image) we could use in other applications\n\nAssess similarity of images (almost same as 1.)\n\nSome function \\(f\\) such that similarity would presumably be high for the same digits, but written differently and somewhat high for digits that are just written similarly to each other.\n\nDiscover some underlying structure in the data (e.g., clusters) (almost same as 1.)\n\nFor example, being able to tell what digit is on the image.\n\nGuided generation.\n\nBeing able to generate image of a certain digit, or a digit of a certain style."
-  },
-  {
-    "objectID": "posts/2025-10-02-bernoulli-random-walks/index.html",
-    "href": "posts/2025-10-02-bernoulli-random-walks/index.html",
-    "title": "Bernoulli Random Walks",
+    "objectID": "posts/2026-01-09-mining-association-rules/index.html#method",
+    "href": "posts/2026-01-09-mining-association-rules/index.html#method",
+    "title": "Mining Association Rules",
     "section": "",
-    "text": "Here is one of the most common misconceptions that I see people have when thinking about probability, in particular repeated coin tosses:\n“Tossing a fair coin n times will give you roughly the same number of heads and tails.”\nTo formalize, let’s say you have iid \\(X_1, \\dots, X_n\\), where \\(X_i \\sim Bi(p)\\), that is, \\(X_i = \\begin{cases} 1, & p \\\\ -1, & 1-p \\end{cases}\\).\nLets define the walk \\(S_t=\\sum_{i}^t X_i\\).\nthen, the assertion is \\(P(S_n = 0) \\text{ is high}\\)\nIn fact, the opposite is true:\n\\(P(S_n=0) = \\frac{\\binom{n}{n/2}}{2^n} \\sim \\sqrt{\\frac{2}{\\pi n}} \\to 0\\) as \\(n \\to \\infty\\)\nFor example, \\(n=10: 0.246, n=100: \\sim 0.08, n=1000: \\sim 0.025\\)\nWe test our intuition today with a little experiment.\nWe are going to be looking at trajectories, where each point is \\((t, S_t)\\).\nIf \\(S_t\\) is zero, then we have the same number of tails and heads at time \\(t\\).\nOur intuition tells us:\nHere is somewhat our expectations summarized:\nText(0, 0.5, 'S_t')\nAnd here are the actual trajectories:\nAnd here are the distributions of some core statistics:\nWhat this shows:"
+    "text": "In order to find those association rules, we first find itemsets with high ($&gt; t, t $) support. The choice of \\(t\\) depends on the application.\nThen, we find association rules that we can construct from those itemsets that also have high (\\(&gt; c\\)) confidence\n\n\nis used to find high-support itemsets.\nIt requires \\(t\\) to be relatively high (or the data relatively sparse), so that the number of all resulting itemsets is relatively small,\n\\[|\\{\\mathcal{K} | T(\\mathcal{K}) &gt; t \\}| \\text{is relatively small}\\]\nand it is based on the following observation:\nIf \\(T(\\mathcal{K}) &gt; t\\), then \\(T(\\mathcal{A}) &gt; t\\) for all \\(A \\subset \\mathcal{K}\\)\nThe algorithm:\n\nFind all itemsets \\(A\\) of size 1, such that \\(T(\\mathcal{A} &gt; t)\\)\nDrop all the other items\nReturn to 1, but now form itemsets of size + 1, only from pairs of items that are still present.\n\nWhy the requirement for the cardinality to be small?\nThe number of solution item sets, their size, and the number of passes required over the data can grow exponentially with decreasing size of this lower bound.\nOne limitation of this algorithm – it cannot find rules with low support and high confidence (quite valuable)."
   },
   {
-    "objectID": "posts/2025-10-02-bernoulli-random-walks/index.html#so-why-did-our-intuition-fail-us",
-    "href": "posts/2025-10-02-bernoulli-random-walks/index.html#so-why-did-our-intuition-fail-us",
-    "title": "Bernoulli Random Walks",
-    "section": "So why did our intuition fail us?",
-    "text": "So why did our intuition fail us?\nThe random walk is fair in the sense that \\(E[S_n]=0\\) and the ditribution of \\(S_n\\) is symmetric. Some might find it tempting to assume that it implies “it should stay near 0”.\nSome people might misinterpret the law of large number and think that $S_n $ as \\(n \\rightarrow \\inf\\), while what it actually gives us is \\(S_n/n \\rightarrow 0\\), which basically says that the average step tends to zero.\n\\(0\\) is indeed the most like value that \\(S_n\\) takes (the mode), but the problem is the distribution of \\(S_n\\) “spread out” as \\(n\\) grows:\n\\[Var(S_n) = n\\]\nSo the trajectories will lie in a \\(\\pm\\sqrt{t}\\) band.\nFrom CLT, \\(\\frac{S_t}{\\sqrt{t}} \\rightarrow \\mathcal{N}(0, 1)\\), so \\(P(|S_t|\\le 2 \\sqrt{t}) \\sim 95\\%\\)\n\n\nText(0, 0.5, 'S_t')"
+    "objectID": "posts/2026-01-09-mining-association-rules/index.html#analysis-of-results",
+    "href": "posts/2026-01-09-mining-association-rules/index.html#analysis-of-results",
+    "title": "Mining Association Rules",
+    "section": "Analysis of Results",
+    "text": "Analysis of Results\nMovie Clusters Discovered:\n\nStar Wars Trilogy - Empire Strikes Back, Return of the Jedi, Star Wars form an extremely tight cluster. Watching any two almost guarantees the third.\nLucas/Spielberg Universe - Indiana Jones movies (Raiders, Last Crusade) strongly associate with Star Wars. Makes sense: same creators, same lead actor (Harrison Ford).\nSci-Fi Action - Terminator, Terminator 2, Alien, Aliens cluster together and connect to Star Wars.\nCult Classics - Princess Bride, Monty Python and the Holy Grail frequently co-occur.\nPrestige Films - Godfather Part II → Godfather (87% confidence), Shawshank/Schindler’s List cluster."
   },
   {
-    "objectID": "myblog.html",
-    "href": "myblog.html",
-    "title": "myblog",
+    "objectID": "posts/2025-09-25-test/index.html",
+    "href": "posts/2025-09-25-test/index.html",
+    "title": "Test: Math + Python (Notebook)",
     "section": "",
-    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
+    "text": "This post demonstrates math and executable Python in an .ipynb."
   },
   {
-    "objectID": "myblog.html#quarto",
-    "href": "myblog.html#quarto",
-    "title": "myblog",
-    "section": "",
-    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
+    "objectID": "posts/2025-09-25-test/index.html#math",
+    "href": "posts/2025-09-25-test/index.html#math",
+    "title": "Test: Math + Python (Notebook)",
+    "section": "Math",
+    "text": "Math\nThe quadratic formula:\n\\[x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}\\]\nA short inline sum: \\(\\sum_{i=1}^n i = \\frac{n(n+1)}{2}\\).\n\nimport math\n\ndef quadratic_roots(a, b, c):\n    disc = b*b - 4*a*c\n    return ((-b - math.sqrt(disc)) / (2*a), (-b + math.sqrt(disc)) / (2*a))\n\nquadratic_roots(1, -3, 2)\n\n(1.0, 2.0)"
+  },
+  {
+    "objectID": "posts/2025-09-25-test/index.html#plot-example",
+    "href": "posts/2025-09-25-test/index.html#plot-example",
+    "title": "Test: Math + Python (Notebook)",
+    "section": "Plot example",
+    "text": "Plot example\nA quick Matplotlib plot.\n\n%matplotlib inline\nimport numpy as np\nimport matplotlib.pyplot as plt\n\nx = np.linspace(-3, 3, 200)\ny = x**2 - 3*x + 2\n\nplt.plot(x, y)\nplt.title(\"y = x^2 - 3x + 2\")\nplt.grid(True)\nplt.show()"
+  },
+  {
+    "objectID": "posts/2025-09-25-test/index.html#interactive-plot-example",
+    "href": "posts/2025-09-25-test/index.html#interactive-plot-example",
+    "title": "Test: Math + Python (Notebook)",
+    "section": "Interactive plot example",
+    "text": "Interactive plot example\n\nimport plotly.express as px\n\ndf = px.data.iris()\nfig = px.scatter(\n    df, x=\"sepal_width\", y=\"sepal_length\",\n    color=\"species\", title=\"Interactive Iris Scatter\", height=420\n)\nfig  # returning the figure renders it interactively"
+  },
+  {
+    "objectID": "posts/2025-09-25-test/index.html#interactive-plot-with-hide-input",
+    "href": "posts/2025-09-25-test/index.html#interactive-plot-with-hide-input",
+    "title": "Test: Math + Python (Notebook)",
+    "section": "Interactive plot with hide input",
+    "text": "Interactive plot with hide input"
+  },
+  {
+    "objectID": "posts/2025-09-25-test/index.html#with-slider",
+    "href": "posts/2025-09-25-test/index.html#with-slider",
+    "title": "Test: Math + Python (Notebook)",
+    "section": "With-slider",
+    "text": "With-slider\n\nimport plotly.express as px\ndf = px.data.gapminder()\nfig = px.scatter(\n    df, x=\"gdpPercap\", y=\"lifeExp\",\n    animation_frame=\"year\", animation_group=\"country\",\n    size=\"pop\", color=\"continent\", hover_name=\"country\",\n    log_x=True, size_max=45, range_x=[100, 100000], range_y=[25, 90],\n    title=\"Gapminder (use slider)\"\n)\nfig"
   },
   {
     "objectID": "posts/2025-10-14-diffusion-models/index.html",
@@ -112,45 +112,73 @@
     "text": "An implementation of DDPM denoiser (UNet)\n\nimport torch\nimport torch.nn as nn\nimport torch.nn.functional as F\n\nclass ResidualBlock(nn.Module):\n    def __init__(self, in_channels, out_channels, temb_channels):\n        super().__init__()\n        self.in_channels = in_channels\n        self.out_channels = out_channels\n        self.temb_channels = temb_channels\n        self.conv_1 = nn.Conv2d(in_channels, out_channels, 3, padding=1)\n        self.norm_1 = nn.GroupNorm(num_groups=8, num_channels=out_channels)\n        self.act = nn.SiLU()\n        self.linear = nn.Linear(temb_channels, out_channels)\n        self.conv_2 = nn.Conv2d(out_channels, out_channels, 3, padding=1)\n        self.norm_2 = nn.GroupNorm(num_groups=8, num_channels=out_channels)\n        self.conv_3 = nn.Conv2d(in_channels, out_channels, 1)\n        \n    def forward(self, x, temb):\n        h = self.conv_1(x)\n        h = self.norm_1(h)\n        h = self.act(h)\n        temb = self.linear(temb)\n        h += temb[:, :, None, None] # h is BxDxHxW, temb is BxDx1x1\n        h = self.conv_2(h)\n        h = self.norm_2(h)\n        h = self.act(h)\n        if self.in_channels != self.out_channels:\n            x = self.conv_3(x)\n        return x + h\n\n\nclass Downsample(nn.Module):\n    def __init__(self, in_channels):\n        super().__init__()\n        self.conv = nn.Conv2d(in_channels, in_channels, 3, stride=2, padding=1)\n        \n    def forward(self, x):\n        return self.conv(x)\n\nclass Upsample(nn.Module):\n    def __init__(self, in_channels):\n        super().__init__()\n        self.conv = nn.Conv2d(in_channels, in_channels, 3, padding=1)\n        \n    def forward(self, x):\n        x = F.interpolate(x, scale_factor=2, mode='nearest')\n        return self.conv(x)\n    \n\nclass UNet(nn.Module):\n    def __init__(self, in_channels=3, hidden_dims=[32, 64, 128, 256, 512], blocks_per_dim=2):\n        super().__init__()\n        self.in_channels = in_channels\n        self.hidden_dims = hidden_dims\n        self.blocks_per_dim = blocks_per_dim\n        self.temb_channels = hidden_dims[0] * 4\n        self.hidden_dims_reversed = hidden_dims[::-1]\n\n        self.temb_linear = nn.Sequential(\n            nn.Linear(hidden_dims[0], self.temb_channels),\n            nn.SiLU(),\n            nn.Linear(self.temb_channels, self.temb_channels)\n        )\n\n        self.first_conv = nn.Conv2d(in_channels, hidden_dims[0], 3, padding=1)\n\n        skip_channels = [self.hidden_dims[0]]\n        prev_ch = self.hidden_dims[0]\n        self.downs = nn.ModuleList()\n        for i in range(len(hidden_dims)):\n            for _ in range(blocks_per_dim):\n                self.downs.append(ResidualBlock(prev_ch, hidden_dims[i], self.temb_channels))\n                prev_ch = hidden_dims[i]\n            if i != len(hidden_dims) - 1:\n                skip_channels.append(hidden_dims[i])\n                self.downs.append(Downsample(hidden_dims[i]))\n            \n        self.intermediate_block_1 = ResidualBlock(hidden_dims[-1], hidden_dims[-1], self.temb_channels)\n        self.intermediate_block_2 = ResidualBlock(hidden_dims[-1], hidden_dims[-1], self.temb_channels)\n\n        self.ups = nn.ModuleList()\n        for i, hidden_dim in enumerate(reversed(self.hidden_dims)):\n            for j in range(blocks_per_dim + 1):\n                in_ch = prev_ch + skip_channels[-1] if j == 0 else prev_ch\n                self.ups.append(ResidualBlock(in_ch, hidden_dim, self.temb_channels))\n                prev_ch = hidden_dim\n            skip_channels.pop()\n            if (i != len(hidden_dims) - 1): \n                self.ups.append(Upsample(prev_ch))\n\n        self.groupnorm = nn.GroupNorm(num_groups=8, num_channels=hidden_dims[0])\n        self.act = nn.SiLU()\n        self.final_conv = nn.Conv2d(hidden_dims[0], in_channels, 3, padding=1)\n    \n    def forward(self, x, t):\n        temb = timestep_embedding(t, self.hidden_dims[0])\n        temb = self.temb_linear(temb)\n        h = self.first_conv(x)\n        hs = [h]\n        for down in self.downs:\n            if isinstance(down, Downsample):\n                h = down(h)\n                hs.append(h)\n            else:\n                h = down(h, temb)\n        h = self.intermediate_block_1(h, temb)\n        h = self.intermediate_block_2(h, temb)\n\n        need_skip = True\n        for up in self.ups:\n            if isinstance(up, Upsample):\n                h = up(h)\n                need_skip = True\n            else:\n                if need_skip:\n                    h = up(torch.cat([h, hs.pop()], dim=1), temb)\n                    need_skip = False\n                else:\n                    h = up(h, temb)\n            \n        h = self.groupnorm(h)\n        h = self.act(h)\n        out = self.final_conv(h)\n        return out\n\nIt has some modificitions to the original U-Net implementation.\n\nTime conditioning\n\nWe accept a timestamp \\(t\\), we use a fixed (non-learnable) positional encoding (timestep_embedding function) (just like original Transformer does).\nWe pass it through MLP\nWe use the result in each residual block by adding a learnable bias to each resulting feature map.\nI think of it as “telling” each block how much noise remain and how to process features at that timestamp.\nEach block has its own projection (just a linear layer that takes time embedding to the number of feature maps in this residual block), so different resolutions can use time information differently.\n\nGroupNorm\n\nBatchNorm depends on batch statistics; diffusion training often uses small batches and per-sample noise/timestep variation, which makes BN unstable.\nGroupNorm is batch-size agnostic and consistent across timesteps/resolutions.\n\nSiLU\n\nSiLU (a.k.a. Swish) has smooth, nonzero gradients for negative inputs and tends to work better in deep generative models.\n\nApart from that, everything else is pretty much the same. The core ideas behind UNet:\n\nAn encoder-decoder architecture. Down and up paths – that’s where the “U” comes from\nDown path: residual block (increase the number of channels) + downsample (reduce HxW by a certain fixed factor)\nSome “intermediate” stuff: (couple of residual block with the same in/out number of channels).\nUp path: residual block with skip connections from the corresponding blocks in the encoder (decrease the number of channels) + upsample (linear interpolation to a higher HxW)\n\nThose skip connections from the encoder to decoder is probably the most interesting part.\nSeems they carry high-frequency/local detail from early layers directly to matching-resolution layers in the decoder, which:\n\nPreserves spatial detail lost during downsampling.\nMakes optimization easier by providing short gradient paths.\nLets the decoder fuse global context (from the bottleneck) with precise local features.\n\n\nm = UNet(in_channels=3)\nx = torch.randn(2, 3, 64, 64)\nt = torch.randint(0, 1000, (2,))\ny = m(x, t)\nassert y.shape == x.shape\n\n\nimport os\nimport torch\nimport torch.nn as nn\nfrom torch.utils.data import DataLoader\nfrom torchvision import datasets, transforms, utils\nfrom tqdm import tqdm\n\ndevice = torch.device('cuda' if torch.cuda.is_available() else 'cpu')\n\ntrain_tfms = transforms.Compose([\n    transforms.RandomHorizontalFlip(),\n    transforms.ToTensor(),\n    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),\n])\n\ntrain_set = datasets.CIFAR10(root='./data', train=True, download=True, transform=train_tfms)\ntrain_loader = DataLoader(train_set, batch_size=128, shuffle=True, num_workers=4, pin_memory=True, drop_last=True)\n\nT = 1000\nbetas = torch.linspace(1e-4, 0.02, T, dtype=torch.float32, device=device)\nalphas = 1.0 - betas\nalpha_bars = torch.cumprod(alphas, dim=0)\nalpha_bars_prev = torch.cat([alpha_bars.new_ones(1), alpha_bars[:-1]], dim=0)\nsqrt_alpha_bars = torch.sqrt(alpha_bars)\nsqrt_one_minus_alpha_bars = torch.sqrt(1.0 - alpha_bars)\nsqrt_recip_alphas = torch.sqrt(1.0 / alphas)\nposterior_variance = betas * (1.0 - alpha_bars_prev) / (1.0 - alpha_bars)\nposterior_variance = torch.clamp(posterior_variance, min=1e-20)\n\ndef extract(a, t, x_shape):\n    return a.gather(0, t).view(-1, *([1] * (len(x_shape) - 1)))\n\nmodel = UNet(in_channels=3).to(device)\noptimizer = torch.optim.AdamW(model.parameters(), lr=2e-4, weight_decay=1e-4)\n\nepochs = 20\nglobal_step = 0\nmodel.train()\nfor epoch in range(epochs):\n    loop = tqdm(train_loader, desc=f'epoch {epoch+1}/{epochs}', leave=False)\n    for x0, _ in loop:\n        x0 = x0.to(device)\n        b = x0.size(0)\n        t = torch.randint(0, T, (b,), device=device, dtype=torch.long)\n        noise = torch.randn_like(x0)\n        xt = extract(sqrt_alpha_bars, t, x0.shape) * x0 + extract(sqrt_one_minus_alpha_bars, t, x0.shape) * noise\n        pred_noise = model(xt, t)\n        loss = nn.functional.mse_loss(pred_noise, noise)\n        optimizer.zero_grad(set_to_none=True)\n        loss.backward()\n        nn.utils.clip_grad_norm_(model.parameters(), 1.0)\n        optimizer.step()\n        global_step += 1\n        loop.set_postfix(loss=float(loss.item()))\n    os.makedirs('checkpoints', exist_ok=True)\n    torch.save({'model': model.state_dict(), 'epoch': epoch + 1, 'step': global_step}, f'checkpoints/unet_epoch_{epoch+1}.pt')\n\n@torch.no_grad()\ndef sample(model, num_images=64):\n    model.eval()\n    x = torch.randn(num_images, 3, 32, 32, device=device)\n    for ti in reversed(range(T)):\n        t = torch.full((num_images,), ti, device=device, dtype=torch.long)\n        eps = model(x, t)\n        coef_x = extract(sqrt_recip_alphas, t, x.shape)\n        coef_eps = extract(betas / torch.sqrt(1.0 - alpha_bars), t, x.shape)\n        mean = coef_x * (x - coef_eps * eps)\n        if ti &gt; 0:\n            noise = torch.randn_like(x)\n            var = extract(posterior_variance, t, x.shape)\n            x = mean + torch.sqrt(var) * noise\n        else:\n            x = mean\n    x = torch.clamp((x + 1) / 2, 0, 1)\n    return x\n\nsamples = sample(model, num_images=64)\nos.makedirs('samples', exist_ok=True)\nutils.save_image(samples, 'samples/cifar10_ddpm_samples.png', nrow=8)"
   },
   {
-    "objectID": "posts/2025-09-25-test/index.html",
-    "href": "posts/2025-09-25-test/index.html",
-    "title": "Test: Math + Python (Notebook)",
+    "objectID": "myblog.html",
+    "href": "myblog.html",
+    "title": "myblog",
     "section": "",
-    "text": "This post demonstrates math and executable Python in an .ipynb."
+    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
   },
   {
-    "objectID": "posts/2025-09-25-test/index.html#math",
-    "href": "posts/2025-09-25-test/index.html#math",
-    "title": "Test: Math + Python (Notebook)",
-    "section": "Math",
-    "text": "Math\nThe quadratic formula:\n\\[x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}\\]\nA short inline sum: \\(\\sum_{i=1}^n i = \\frac{n(n+1)}{2}\\).\n\nimport math\n\ndef quadratic_roots(a, b, c):\n    disc = b*b - 4*a*c\n    return ((-b - math.sqrt(disc)) / (2*a), (-b + math.sqrt(disc)) / (2*a))\n\nquadratic_roots(1, -3, 2)\n\n(1.0, 2.0)"
+    "objectID": "myblog.html#quarto",
+    "href": "myblog.html#quarto",
+    "title": "myblog",
+    "section": "",
+    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
   },
   {
-    "objectID": "posts/2025-09-25-test/index.html#plot-example",
-    "href": "posts/2025-09-25-test/index.html#plot-example",
-    "title": "Test: Math + Python (Notebook)",
-    "section": "Plot example",
-    "text": "Plot example\nA quick Matplotlib plot.\n\n%matplotlib inline\nimport numpy as np\nimport matplotlib.pyplot as plt\n\nx = np.linspace(-3, 3, 200)\ny = x**2 - 3*x + 2\n\nplt.plot(x, y)\nplt.title(\"y = x^2 - 3x + 2\")\nplt.grid(True)\nplt.show()"
+    "objectID": "posts/2025-10-02-bernoulli-random-walks/index.html",
+    "href": "posts/2025-10-02-bernoulli-random-walks/index.html",
+    "title": "Bernoulli Random Walks",
+    "section": "",
+    "text": "Here is one of the most common misconceptions that I see people have when thinking about probability, in particular repeated coin tosses:\n“Tossing a fair coin n times will give you roughly the same number of heads and tails.”\nTo formalize, let’s say you have iid \\(X_1, \\dots, X_n\\), where \\(X_i \\sim Bi(p)\\), that is, \\(X_i = \\begin{cases} 1, & p \\\\ -1, & 1-p \\end{cases}\\).\nLets define the walk \\(S_t=\\sum_{i}^t X_i\\).\nthen, the assertion is \\(P(S_n = 0) \\text{ is high}\\)\nIn fact, the opposite is true:\n\\(P(S_n=0) = \\frac{\\binom{n}{n/2}}{2^n} \\sim \\sqrt{\\frac{2}{\\pi n}} \\to 0\\) as \\(n \\to \\infty\\)\nFor example, \\(n=10: 0.246, n=100: \\sim 0.08, n=1000: \\sim 0.025\\)\nWe test our intuition today with a little experiment.\nWe are going to be looking at trajectories, where each point is \\((t, S_t)\\).\nIf \\(S_t\\) is zero, then we have the same number of tails and heads at time \\(t\\).\nOur intuition tells us:\nHere is somewhat our expectations summarized:\nText(0, 0.5, 'S_t')\nAnd here are the actual trajectories:\nAnd here are the distributions of some core statistics:\nWhat this shows:"
   },
   {
-    "objectID": "posts/2025-09-25-test/index.html#interactive-plot-example",
-    "href": "posts/2025-09-25-test/index.html#interactive-plot-example",
-    "title": "Test: Math + Python (Notebook)",
-    "section": "Interactive plot example",
-    "text": "Interactive plot example\n\nimport plotly.express as px\n\ndf = px.data.iris()\nfig = px.scatter(\n    df, x=\"sepal_width\", y=\"sepal_length\",\n    color=\"species\", title=\"Interactive Iris Scatter\", height=420\n)\nfig  # returning the figure renders it interactively"
+    "objectID": "posts/2025-10-02-bernoulli-random-walks/index.html#so-why-did-our-intuition-fail-us",
+    "href": "posts/2025-10-02-bernoulli-random-walks/index.html#so-why-did-our-intuition-fail-us",
+    "title": "Bernoulli Random Walks",
+    "section": "So why did our intuition fail us?",
+    "text": "So why did our intuition fail us?\nThe random walk is fair in the sense that \\(E[S_n]=0\\) and the ditribution of \\(S_n\\) is symmetric. Some might find it tempting to assume that it implies “it should stay near 0”.\nSome people might misinterpret the law of large number and think that $S_n $ as \\(n \\rightarrow \\inf\\), while what it actually gives us is \\(S_n/n \\rightarrow 0\\), which basically says that the average step tends to zero.\n\\(0\\) is indeed the most like value that \\(S_n\\) takes (the mode), but the problem is the distribution of \\(S_n\\) “spread out” as \\(n\\) grows:\n\\[Var(S_n) = n\\]\nSo the trajectories will lie in a \\(\\pm\\sqrt{t}\\) band.\nFrom CLT, \\(\\frac{S_t}{\\sqrt{t}} \\rightarrow \\mathcal{N}(0, 1)\\), so \\(P(|S_t|\\le 2 \\sqrt{t}) \\sim 95\\%\\)\n\n\nText(0, 0.5, 'S_t')"
   },
   {
-    "objectID": "posts/2025-09-25-test/index.html#interactive-plot-with-hide-input",
-    "href": "posts/2025-09-25-test/index.html#interactive-plot-with-hide-input",
-    "title": "Test: Math + Python (Notebook)",
-    "section": "Interactive plot with hide input",
-    "text": "Interactive plot with hide input"
+    "objectID": "posts/2025-09-25-learn-autogressive-model-on-images/index.html",
+    "href": "posts/2025-09-25-learn-autogressive-model-on-images/index.html",
+    "title": "Learn Autogressive Model on Images",
+    "section": "",
+    "text": "Wouldn’t it be nice to learn a distribution \\(P(X)\\) of a certain set of images, for simplicity, the images of digits?\nYou would be able to:\n\nGenerate new images of digits\nSay how like an image is from the same distribution (that is, also a digit)\ninpaint missing image details\n\nIt does not seem like a trivial task.\nAssume image is \\(\\sqrt{n} \\times \\sqrt{n}\\) pixels, each one black or white; enumerate them from the top left to bottom right \\(\\{ X_1, ..., X_{n}\\}\\)\nIf we make no assumption about the underlaying distribution, it would take \\(2^n-1\\) parameters to model it, since each pixel in this image can be either black or white with a certain probability \\(p_i\\)."
   },
   {
-    "objectID": "posts/2025-09-25-test/index.html#with-slider",
-    "href": "posts/2025-09-25-test/index.html#with-slider",
-    "title": "Test: Math + Python (Notebook)",
-    "section": "With-slider",
-    "text": "With-slider\n\nimport plotly.express as px\ndf = px.data.gapminder()\nfig = px.scatter(\n    df, x=\"gdpPercap\", y=\"lifeExp\",\n    animation_frame=\"year\", animation_group=\"country\",\n    size=\"pop\", color=\"continent\", hover_name=\"country\",\n    log_x=True, size_max=45, range_x=[100, 100000], range_y=[25, 90],\n    title=\"Gapminder (use slider)\"\n)\nfig"
+    "objectID": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#the-problem",
+    "href": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#the-problem",
+    "title": "Learn Autogressive Model on Images",
+    "section": "",
+    "text": "Wouldn’t it be nice to learn a distribution \\(P(X)\\) of a certain set of images, for simplicity, the images of digits?\nYou would be able to:\n\nGenerate new images of digits\nSay how like an image is from the same distribution (that is, also a digit)\ninpaint missing image details\n\nIt does not seem like a trivial task.\nAssume image is \\(\\sqrt{n} \\times \\sqrt{n}\\) pixels, each one black or white; enumerate them from the top left to bottom right \\(\\{ X_1, ..., X_{n}\\}\\)\nIf we make no assumption about the underlaying distribution, it would take \\(2^n-1\\) parameters to model it, since each pixel in this image can be either black or white with a certain probability \\(p_i\\)."
+  },
+  {
+    "objectID": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#a-solution",
+    "href": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#a-solution",
+    "title": "Learn Autogressive Model on Images",
+    "section": "A solution",
+    "text": "A solution\nA common trick is to use the chain rule\n\\[P(X_1, ..., X_n) = P(X_1) P(X_2|X_1) ... P(X_n|X_1,X_2,...,X_{n-1})\\]\nand then, in a sort of “discriminative manner” to model\n\\[P(X_i|X_1...X_{i-1}) = f_i(X_1, ..., X_{i-1}; \\theta_i)\\]\nThis would be an example of an autoregressive model.\nNote that the function \\(f_i\\) and the set of parameters for this function \\(\\theta_i\\) might be different for each of those terms.\nSome easy example would be to just let\n\\[P(X_i|X_1...X_{i-1}) = \\sigma(\\theta_{i1} X_1 + \\theta_{i2} X_2 + ... + \\theta_{i,i-1} X_{i-1} + \\theta_{i0})\\]\nThis is essentially a separate logistic regression for each pixel, conditioned on all previous pixels.\nThe number of parameters in this model is \\(\\frac{n^2}{2}\\).\nA bit better seems to have just a dense representation for the previous pixels with a linear linear like\n\\[P(X_i|X_1...X_{i-1}) = \\sigma(\\theta_i^T h(W_{:,1} X_1 + W_{:,2} X_2 + ... + W_{:,i-1} X_{i-1})) = \\sigma(\\theta_i^T h(W X_{1:i-1}))\\]\nIn this case we are still taking a linear combination, but now of a hidden state of fixed size. The number of parameters in this model is \\(2DH + D + H\\), which scales linearly with the number of pixels in the image."
+  },
+  {
+    "objectID": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#a-demo",
+    "href": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#a-demo",
+    "title": "Learn Autogressive Model on Images",
+    "section": "A demo",
+    "text": "A demo\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nIt is interesting"
+  },
+  {
+    "objectID": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#nade",
+    "href": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#nade",
+    "title": "Learn Autogressive Model on Images",
+    "section": "NADE",
+    "text": "NADE"
+  },
+  {
+    "objectID": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#limitations",
+    "href": "posts/2025-09-25-learn-autogressive-model-on-images/index.html#limitations",
+    "title": "Learn Autogressive Model on Images",
+    "section": "Limitations",
+    "text": "Limitations\nWhat the autoregressive model cannot give us:\n\nGet a representation of an image.\n\nSome dense vector (dim significantly less then the image) we could use in other applications\n\nAssess similarity of images (almost same as 1.)\n\nSome function \\(f\\) such that similarity would presumably be high for the same digits, but written differently and somewhat high for digits that are just written similarly to each other.\n\nDiscover some underlying structure in the data (e.g., clusters) (almost same as 1.)\n\nFor example, being able to tell what digit is on the image.\n\nGuided generation.\n\nBeing able to generate image of a certain digit, or a digit of a certain style."
   }
 ]

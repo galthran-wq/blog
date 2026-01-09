@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.24">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-01-09">
+<meta name="description" content="Explain what association rules are and how to mine them">
+
+<title>Mining Association Rules – myblog</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dc55a5b9e770e841cd82e46aadbfb9b0.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-b651517ce65839d647a86e2780455cfb.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dc55a5b9e770e841cd82e46aadbfb9b0.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-6b99c554a1e37ee0b762a34660148996.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-8e18017f3f3b5435db4a4b6dd362f15d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-6b99c554a1e37ee0b762a34660148996.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script type="text/javascript">
+window.PlotlyConfig = {MathJaxConfig: 'local'};
+if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}
+</script>
+<script type="module">import "https://cdn.plot.ly/plotly-3.1.0.min"</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">myblog</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../myblog.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../myblog.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#goal" id="toc-goal" class="nav-link active" data-scroll-target="#goal">Goal</a>
+  <ul class="collapse">
+  <li><a href="#definition-of-association-rule" id="toc-definition-of-association-rule" class="nav-link" data-scroll-target="#definition-of-association-rule">Definition of association rule</a>
+  <ul class="collapse">
+  <li><a href="#metrics-for-association-rules" id="toc-metrics-for-association-rules" class="nav-link" data-scroll-target="#metrics-for-association-rules">Metrics for association rules:</a></li>
+  </ul></li>
+  <li><a href="#method" id="toc-method" class="nav-link" data-scroll-target="#method">Method</a>
+  <ul class="collapse">
+  <li><a href="#the-apriori-algorithm" id="toc-the-apriori-algorithm" class="nav-link" data-scroll-target="#the-apriori-algorithm">The Apriori Algorithm</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#demo" id="toc-demo" class="nav-link" data-scroll-target="#demo">Demo</a>
+  <ul class="collapse">
+  <li><a href="#analysis-of-results" id="toc-analysis-of-results" class="nav-link" data-scroll-target="#analysis-of-results">Analysis of Results</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Mining Association Rules</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">unsupervised learning</div>
+    <div class="quarto-category">data mining</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Explain what association rules are and how to mine them
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 9, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="goal" class="level1">
+<h1>Goal</h1>
+<p>assume we have a set random variables <span class="math inline">\({Z_1, Z_2, \dots Z_K}\)</span>, <span class="math inline">\(Z_i \in \{0,1\}\)</span></p>
+<p>We are interested in events of the form: <span class="math inline">\(\mathbf{P}\left(\bigcap_{i \in \mathcal{K}} Z_i = 1\right)\)</span></p>
+<p><span class="math inline">\(\mathcal{K}\)</span> is called itemset</p>
+<section id="definition-of-association-rule" class="level2">
+<h2 class="anchored" data-anchor-id="definition-of-association-rule">Definition of association rule</h2>
+<p>Let <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> be disjoint and complete subsets of <span class="math inline">\(\mathcal{K}\)</span>. Then we can have association rule <span class="math inline">\(A \implies B\)</span>. A is called antecedent, B – consequent.</p>
+<section id="metrics-for-association-rules" class="level3">
+<h3 class="anchored" data-anchor-id="metrics-for-association-rules">Metrics for association rules:</h3>
+<p><strong>Support</strong>, <span class="math inline">\(T(A \implies B)\)</span> (also the support of the itemset) – the probability of observing the itemset.</p>
+<p><span class="math inline">\(T(A \implies B) = \mathbf{P}\left(\bigcap_{i \in \mathcal{K}} Z_i = 1\right)\)</span></p>
+<p><strong>Confidence</strong>, <span class="math inline">\(C(A \implies B)\)</span> – how likely is B, given A.</p>
+<p><span class="math inline">\(C(A \implies B) = \frac{T(A \implies B)}{{T(A)}}\)</span>,</p>
+<p>where <span class="math inline">\(T(A)\)</span> is defined <span class="math inline">\(\mathbf{P}\left(\bigcap_{i \in \mathcal{A}} Z_i = 1\right)\)</span></p>
+<p>The goal is to find assiciation rules with both high support and high confidence.</p>
+<p>We are going to estimate support and confidence from a set of observations.</p>
+</section>
+</section>
+<section id="method" class="level2">
+<h2 class="anchored" data-anchor-id="method">Method</h2>
+<p>In order to find those association rules, we first find itemsets with high ($&gt; t, t $) support. The choice of <span class="math inline">\(t\)</span> depends on the application.</p>
+<p>Then, we find association rules that we can construct from those itemsets that also have high (<span class="math inline">\(&gt; c\)</span>) confidence</p>
+<section id="the-apriori-algorithm" class="level3">
+<h3 class="anchored" data-anchor-id="the-apriori-algorithm">The Apriori Algorithm</h3>
+<p>is used to find high-support itemsets.</p>
+<p>It requires <span class="math inline">\(t\)</span> to be relatively high (or the data relatively sparse), so that the number of all resulting itemsets is relatively small,</p>
+<p><span class="math display">\[|\{\mathcal{K} | T(\mathcal{K}) &gt; t \}| \text{is relatively small}\]</span></p>
+<p>and it is based on the following observation:</p>
+<p>If <span class="math inline">\(T(\mathcal{K}) &gt; t\)</span>, then <span class="math inline">\(T(\mathcal{A}) &gt; t\)</span> for all <span class="math inline">\(A \subset \mathcal{K}\)</span></p>
+<p>The algorithm:</p>
+<ol type="1">
+<li>Find all itemsets <span class="math inline">\(A\)</span> of size 1, such that <span class="math inline">\(T(\mathcal{A} &gt; t)\)</span></li>
+<li>Drop all the other items</li>
+<li>Return to 1, but now form itemsets of size + 1, only from pairs of items that are still present.</li>
+</ol>
+<p>Why the requirement for the cardinality to be small?</p>
+<p>The number of solution item sets, their size, and the number of passes required over the data can grow exponentially with decreasing size of this lower bound.</p>
+<p>One limitation of this algorithm – it cannot find rules with low support and high confidence (quite valuable).</p>
+</section>
+</section>
+</section>
+<section id="demo" class="level1">
+<h1>Demo</h1>
+<div id="cell-3" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> List, Set, Tuple, Dict</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> itertools <span class="im">import</span> combinations</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tqdm.auto <span class="im">import</span> tqdm</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>FrequentItemset <span class="op">=</span> Tuple[<span class="bu">frozenset</span>, <span class="bu">float</span>]</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_candidates(frequent: Set[<span class="bu">frozenset</span>], k: <span class="bu">int</span>) <span class="op">-&gt;</span> Set[<span class="bu">frozenset</span>]:</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    frequent_list <span class="op">=</span> <span class="bu">list</span>(frequent)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    candidates <span class="op">=</span> <span class="bu">set</span>()</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(frequent_list)):</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(i <span class="op">+</span> <span class="dv">1</span>, <span class="bu">len</span>(frequent_list)):</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>            union <span class="op">=</span> frequent_list[i] <span class="op">|</span> frequent_list[j]</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="bu">len</span>(union) <span class="op">==</span> k:</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="bu">all</span>(union <span class="op">-</span> {item} <span class="kw">in</span> frequent <span class="cf">for</span> item <span class="kw">in</span> union):</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>                    candidates.add(union)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> candidates</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Reduces the number of combinations generated per transaction.</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># If an item is not in any frequent itemset, it cannot be part of a larger frequent itemset.</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> filter_transactions(transactions: List[<span class="bu">frozenset</span>], frequent_items: Set) <span class="op">-&gt;</span> List[<span class="bu">frozenset</span>]:</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [txn <span class="op">&amp;</span> frequent_items <span class="cf">for</span> txn <span class="kw">in</span> transactions]</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> count_supports(</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    transactions: List[<span class="bu">frozenset</span>], </span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    candidates: Set[<span class="bu">frozenset</span>], </span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    k: <span class="bu">int</span>,</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    frequent_items: Set <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    verbose: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> Dict[<span class="bu">frozenset</span>, <span class="bu">float</span>]:</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> frequent_items <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>        transactions <span class="op">=</span> filter_transactions(transactions, frequent_items)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    counts <span class="op">=</span> {c: <span class="dv">0</span> <span class="cf">for</span> c <span class="kw">in</span> candidates}</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> txn <span class="kw">in</span> tqdm(transactions, desc<span class="op">=</span><span class="st">"Counting supports (k=</span><span class="sc">{}</span><span class="st">)"</span>.<span class="bu">format</span>(k), disable<span class="op">=</span><span class="kw">not</span> verbose):</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> combo <span class="kw">in</span> combinations(txn, k):</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>            itemset <span class="op">=</span> <span class="bu">frozenset</span>(combo)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> itemset <span class="kw">in</span> counts:</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>                counts[itemset] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {itemset: count <span class="op">/</span> <span class="bu">len</span>(transactions) <span class="cf">for</span> itemset, count <span class="kw">in</span> counts.items()}</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> apriori(transactions: List[<span class="bu">frozenset</span>], min_support: <span class="bu">float</span>, verbose: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span>) <span class="op">-&gt;</span> List[FrequentItemset]:</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    all_items <span class="op">=</span> <span class="bu">set</span>().union(<span class="op">*</span>transactions)</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    candidates <span class="op">=</span> {<span class="bu">frozenset</span>([item]) <span class="cf">for</span> item <span class="kw">in</span> all_items}</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    frequent_by_size <span class="op">=</span> {}</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    frequent_items <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> candidates:</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> verbose:</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Candidates for size </span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span><span class="bu">len</span>(candidates)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>        supports <span class="op">=</span> count_supports(transactions, candidates, k, frequent_items, verbose)</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>        frequent <span class="op">=</span> [(itemset, sup) <span class="cf">for</span> itemset, sup <span class="kw">in</span> supports.items() <span class="cf">if</span> sup <span class="op">&gt;</span> min_support]</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> verbose:</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Frequent itemsets for size </span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span><span class="bu">len</span>(frequent)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>        frequent_by_size[k] <span class="op">=</span> frequent</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>        prev_frequent <span class="op">=</span> {itemset <span class="cf">for</span> itemset, _ <span class="kw">in</span> frequent}</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>        frequent_items <span class="op">=</span> <span class="bu">set</span>().union(<span class="op">*</span>prev_frequent) <span class="cf">if</span> prev_frequent <span class="cf">else</span> <span class="bu">set</span>()</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>        candidates <span class="op">=</span> generate_candidates(prev_frequent, k <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>        k <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> []</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> itemsets <span class="kw">in</span> frequent_by_size.values():</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>        result.extend(itemsets)</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-4" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_association_rules(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    frequent_itemsets: List[FrequentItemset], </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    min_confidence: <span class="bu">float</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> List[Tuple[<span class="bu">frozenset</span>, <span class="bu">frozenset</span>, <span class="bu">float</span>, <span class="bu">float</span>]]:</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    rules <span class="op">=</span> []</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    itemset_to_support <span class="op">=</span> {itemset: support <span class="cf">for</span> itemset, support <span class="kw">in</span> frequent_itemsets}</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> itemset, support <span class="kw">in</span> frequent_itemsets:</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">len</span>(itemset)):</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> antecedent <span class="kw">in</span> combinations(itemset, i):</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>                antecedent <span class="op">=</span> <span class="bu">frozenset</span>(antecedent)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>                consequent <span class="op">=</span> itemset <span class="op">-</span> antecedent</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>                confidence <span class="op">=</span> support <span class="op">/</span> itemset_to_support[antecedent]</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> confidence <span class="op">&gt;=</span> min_confidence:</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>                    rules.append((antecedent, consequent, confidence, support))</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> rules</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-5" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># import pandas as pd</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># from ucimlrepo import fetch_ucirepo </span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># online_retail = fetch_ucirepo(id=352) </span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># X = online_retail.data["original"]</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># X.head()</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># itemsets = X.groupby("InvoiceNo")["StockCode"].apply(frozenset).tolist()</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># stock_code_to_description = {row["StockCode"]: row["Description"] for _, row in X.iterrows()}</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># print(f"Length of itemsets: {len(itemsets)}")</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># print(f"First itemset: {itemsets[0]}")</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># print("Descriptions of first itemset:", [stock_code_to_description[code] for code in itemsets[0]])</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># contigency_table = (pd.crosstab(X["InvoiceNo"], X["StockCode"]) &gt; 0).astype(int)</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># print(f"Contigency table shape: {contigency_table.shape}")</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># contigency_table.head()</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># cols = contigency_table.columns.tolist()</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co"># transactions = [</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#     frozenset(cols[i] for i, val in enumerate(row) if val == 1)</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">#     for row in contigency_table.values</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># ]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-6" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> urllib.request</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> zipfile</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://files.grouplens.org/datasets/movielens/ml-100k.zip"</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>urllib.request.urlretrieve(url, <span class="st">"ml-100k.zip"</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> zipfile.ZipFile(<span class="st">"ml-100k.zip"</span>, <span class="st">"r"</span>) <span class="im">as</span> zip_ref:</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    zip_ref.extractall(<span class="st">"."</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>ratings <span class="op">=</span> pd.read_csv(</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ml-100k/u.data"</span>, </span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    sep<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>, </span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    names<span class="op">=</span>[<span class="st">"user_id"</span>, <span class="st">"movie_id"</span>, <span class="st">"rating"</span>, <span class="st">"timestamp"</span>]</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>movies <span class="op">=</span> pd.read_csv(</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ml-100k/u.item"</span>,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    sep<span class="op">=</span><span class="st">"|"</span>,</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    encoding<span class="op">=</span><span class="st">"latin-1"</span>,</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    names<span class="op">=</span>[<span class="st">"movie_id"</span>, <span class="st">"title"</span>, <span class="st">"release_date"</span>, <span class="st">"video_release"</span>, <span class="st">"imdb_url"</span>] <span class="op">+</span> [<span class="ss">f"genre_</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">19</span>)]</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-7" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>movie_id_to_title <span class="op">=</span> <span class="bu">dict</span>(<span class="bu">zip</span>(movies[<span class="st">"movie_id"</span>], movies[<span class="st">"title"</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-8" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>liked <span class="op">=</span> ratings[ratings[<span class="st">"rating"</span>] <span class="op">&gt;=</span> <span class="dv">4</span>]</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>transactions <span class="op">=</span> liked.groupby(<span class="st">"user_id"</span>)[<span class="st">"movie_id"</span>].<span class="bu">apply</span>(<span class="bu">frozenset</span>).tolist()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-9" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>frequent_itemsets <span class="op">=</span> apriori(transactions, min_support<span class="op">=</span><span class="fl">0.15</span>, verbose<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Found </span><span class="sc">{</span><span class="bu">len</span>(frequent_itemsets)<span class="sc">}</span><span class="ss"> frequent itemsets"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Candidates for size 1: 1447</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"fc0c206fd9b14347a66fe576dc2cea78","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Frequent itemsets for size 1: 98
+Candidates for size 2: 4753</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"21ab0d73f9194057aa1a7b37a6676781","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Frequent itemsets for size 2: 192
+Candidates for size 3: 423</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"682ed88a7d5f4827ada98e8a7663dff1","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Frequent itemsets for size 3: 88
+Candidates for size 4: 23</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"4962adfb0a8e42a2964a013b37401bfc","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Frequent itemsets for size 4: 13
+Found 391 frequent itemsets</code></pre>
+</div>
+</div>
+<div id="cell-10" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>rules <span class="op">=</span> get_association_rules(frequent_itemsets, min_confidence<span class="op">=</span><span class="fl">0.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-11" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>rules_df <span class="op">=</span> pd.DataFrame(rules, columns<span class="op">=</span>[<span class="st">"antecedent"</span>, <span class="st">"consequent"</span>, <span class="st">"confidence"</span>, <span class="st">"support"</span>])</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># rules_df["antecedent_description"] = rules_df["antecedent"].apply(lambda x: " ".join([stock_code_to_description[code] for code in x]))</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># rules_df["consequent_description"] = rules_df["consequent"].apply(lambda x: " ".join([stock_code_to_description[code] for code in x]))</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>rules_df[<span class="st">"antecedent_description"</span>] <span class="op">=</span> rules_df[<span class="st">"antecedent"</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="st">", "</span>.join([movie_id_to_title[mid] <span class="cf">for</span> mid <span class="kw">in</span> x]))</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>rules_df[<span class="st">"consequent_description"</span>] <span class="op">=</span> rules_df[<span class="st">"consequent"</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="st">", "</span>.join([movie_id_to_title[mid] <span class="cf">for</span> mid <span class="kw">in</span> x]))</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>rules_df.sort_values(by<span class="op">=</span><span class="st">"confidence"</span>, ascending<span class="op">=</span><span class="va">False</span>, inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>rules_df.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">antecedent</th>
+<th data-quarto-table-cell-role="th">consequent</th>
+<th data-quarto-table-cell-role="th">confidence</th>
+<th data-quarto-table-cell-role="th">support</th>
+<th data-quarto-table-cell-role="th">antecedent_description</th>
+<th data-quarto-table-cell-role="th">consequent_description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">304</th>
+<td>(181, 183)</td>
+<td>(50)</td>
+<td>0.993007</td>
+<td>0.150743</td>
+<td>Return of the Jedi (1983), Alien (1979)</td>
+<td>Star Wars (1977)</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">729</th>
+<td>(210, 172, 181)</td>
+<td>(50)</td>
+<td>0.986577</td>
+<td>0.156051</td>
+<td>Indiana Jones and the Last Crusade (1989), Emp...</td>
+<td>Star Wars (1977)</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">352</th>
+<td>(181, 173)</td>
+<td>(50)</td>
+<td>0.981595</td>
+<td>0.169851</td>
+<td>Return of the Jedi (1983), Princess Bride, The...</td>
+<td>Star Wars (1977)</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">634</th>
+<td>(210, 172, 174)</td>
+<td>(50)</td>
+<td>0.981481</td>
+<td>0.168790</td>
+<td>Indiana Jones and the Last Crusade (1989), Emp...</td>
+<td>Star Wars (1977)</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">658</th>
+<td>(172, 173, 174)</td>
+<td>(50)</td>
+<td>0.980645</td>
+<td>0.161359</td>
+<td>Empire Strikes Back, The (1980), Princess Brid...</td>
+<td>Star Wars (1977)</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="cell-12" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>rules_df[<span class="st">"rule"</span>] <span class="op">=</span> rules_df[<span class="st">"antecedent_description"</span>] <span class="op">+</span> <span class="st">" → "</span> <span class="op">+</span> rules_df[<span class="st">"consequent_description"</span>]</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> px.scatter(</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    rules_df,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">"support"</span>,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="st">"confidence"</span>,</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    hover_data<span class="op">=</span>[<span class="st">"rule"</span>],</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">"Association Rules"</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>fig.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_SVG"></script><script type="text/javascript">if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script>                <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.1.0.min.js" integrity="sha256-Ei4740bWZhaUTQuD6q9yQlgVCMPBz6CZWhevDYPv93A=" crossorigin="anonymous"></script>                <div id="ebd9937a-05c0-4cf1-b536-714776962318" class="plotly-graph-div" style="height:525px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("ebd9937a-05c0-4cf1-b536-714776962318")) {                    Plotly.newPlot(                        "ebd9937a-05c0-4cf1-b536-714776962318",                        [{"customdata":[["Return of the Jedi (1983), Alien (1979) \u2192 Star Wars (1977)"],["Indiana Jones and the Last Crusade (1989), Empire Strikes Back, The (1980), Return of the Jedi (1983) \u2192 Star Wars (1977)"],["Return of the Jedi (1983), Princess Bride, The (1987) \u2192 Star Wars (1977)"],["Indiana Jones and the Last Crusade (1989), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Empire Strikes Back, The (1980), Princess Bride, The (1987), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Terminator 2: Judgment Day (1991), Return of the Jedi (1983) \u2192 Star Wars (1977)"],["Empire Strikes Back, The (1980), Forrest Gump (1994) \u2192 Star Wars (1977)"],["Indiana Jones and the Last Crusade (1989), Empire Strikes Back, The (1980) \u2192 Star Wars (1977)"],["Empire Strikes Back, The (1980), Fugitive, The (1993) \u2192 Star Wars (1977)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981), Fugitive, The (1993) \u2192 Star Wars (1977)"],["Empire Strikes Back, The (1980), Return of the Jedi (1983), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Empire Strikes Back, The (1980), Return of the Jedi (1983) \u2192 Star Wars (1977)"],["Indiana Jones and the Last Crusade (1989), Return of the Jedi (1983), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Empire Strikes Back, The (1980), Princess Bride, The (1987) \u2192 Star Wars (1977)"],["Silence of the Lambs, The (1991), Empire Strikes Back, The (1980), Return of the Jedi (1983) \u2192 Star Wars (1977)"],["Pulp Fiction (1994), Return of the Jedi (1983) \u2192 Star Wars (1977)"],["Terminator 2: Judgment Day (1991), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Indiana Jones and the Last Crusade (1989), Return of the Jedi (1983) \u2192 Star Wars (1977)"],["Empire Strikes Back, The (1980), Back to the Future (1985) \u2192 Star Wars (1977)"],["Return of the Jedi (1983), Fugitive, The (1993) \u2192 Star Wars (1977)"],["Terminator 2: Judgment Day (1991), Empire Strikes Back, The (1980) \u2192 Star Wars (1977)"],["Back to the Future (1985), Return of the Jedi (1983) \u2192 Star Wars (1977)"],["Silence of the Lambs, The (1991), Return of the Jedi (1983), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Empire Strikes Back, The (1980), Back to the Future (1985), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Monty Python and the Holy Grail (1974), Return of the Jedi (1983) \u2192 Star Wars (1977)"],["Empire Strikes Back, The (1980), Alien (1979) \u2192 Star Wars (1977)"],["Return of the Jedi (1983), Star Trek: First Contact (1996) \u2192 Star Wars (1977)"],["Star Wars (1977), Terminator, The (1984), Empire Strikes Back, The (1980) \u2192 Raiders of the Lost Ark (1981)"],["Pulp Fiction (1994), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Empire Strikes Back, The (1980), Godfather, The (1972) \u2192 Star Wars (1977)"],["Silence of the Lambs, The (1991), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Terminator, The (1984), Empire Strikes Back, The (1980) \u2192 Raiders of the Lost Ark (1981)"],["Empire Strikes Back, The (1980), Braveheart (1995) \u2192 Star Wars (1977)"],["Terminator, The (1984), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Blade Runner (1982), Empire Strikes Back, The (1980) \u2192 Star Wars (1977)"],["Pulp Fiction (1994), Empire Strikes Back, The (1980) \u2192 Star Wars (1977)"],["Terminator, The (1984), Empire Strikes Back, The (1980) \u2192 Star Wars (1977)"],["Monty Python and the Holy Grail (1974), Empire Strikes Back, The (1980) \u2192 Star Wars (1977)"],["Toy Story (1995), Empire Strikes Back, The (1980) \u2192 Star Wars (1977)"],["Return of the Jedi (1983), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Shawshank Redemption, The (1994), Return of the Jedi (1983) \u2192 Star Wars (1977)"],["Shawshank Redemption, The (1994), Empire Strikes Back, The (1980) \u2192 Star Wars (1977)"],["Independence Day (ID4) (1996), Return of the Jedi (1983) \u2192 Star Wars (1977)"],["Silence of the Lambs, The (1991), Return of the Jedi (1983) \u2192 Star Wars (1977)"],["Return of the Jedi (1983), Braveheart (1995) \u2192 Star Wars (1977)"],["Star Wars (1977), Terminator, The (1984) \u2192 Raiders of the Lost Ark (1981)"],["Toy Story (1995), Return of the Jedi (1983) \u2192 Star Wars (1977)"],["Princess Bride, The (1987), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Return of the Jedi (1983), Godfather, The (1972) \u2192 Star Wars (1977)"],["Empire Strikes Back, The (1980) \u2192 Star Wars (1977)"],["Back to the Future (1985), Empire Strikes Back, The (1980) \u2192 Raiders of the Lost Ark (1981)"],["Silence of the Lambs, The (1991), Empire Strikes Back, The (1980) \u2192 Star Wars (1977)"],["Contact (1997), Return of the Jedi (1983) \u2192 Star Wars (1977)"],["Raiders of the Lost Ark (1981), Alien (1979) \u2192 Star Wars (1977)"],["Star Wars (1977), Empire Strikes Back, The (1980), Back to the Future (1985) \u2192 Raiders of the Lost Ark (1981)"],["Rock, The (1996), Return of the Jedi (1983) \u2192 Star Wars (1977)"],["Indiana Jones and the Last Crusade (1989), Empire Strikes Back, The (1980), Star Wars (1977) \u2192 Raiders of the Lost Ark (1981)"],["Silence of the Lambs, The (1991), Terminator, The (1984) \u2192 Raiders of the Lost Ark (1981)"],["Return of the Jedi (1983) \u2192 Star Wars (1977)"],["Indiana Jones and the Last Crusade (1989), Empire Strikes Back, The (1980) \u2192 Raiders of the Lost Ark (1981)"],["Fargo (1996), Return of the Jedi (1983) \u2192 Star Wars (1977)"],["Terminator 2: Judgment Day (1991), Terminator, The (1984) \u2192 Raiders of the Lost Ark (1981)"],["Terminator, The (1984), Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Monty Python and the Holy Grail (1974), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Star Wars (1977), Empire Strikes Back, The (1980), Princess Bride, The (1987) \u2192 Raiders of the Lost Ark (1981)"],["Raiders of the Lost Ark (1981), Braveheart (1995) \u2192 Star Wars (1977)"],["Star Wars (1977), Braveheart (1995) \u2192 Raiders of the Lost Ark (1981)"],["Terminator 2: Judgment Day (1991), Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Raiders of the Lost Ark (1981)"],["Aliens (1986), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Indiana Jones and the Last Crusade (1989), Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980)"],["Indiana Jones and the Last Crusade (1989), Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Terminator 2: Judgment Day (1991), Empire Strikes Back, The (1980) \u2192 Raiders of the Lost Ark (1981)"],["Terminator 2: Judgment Day (1991), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Empire Strikes Back, The (1980), Princess Bride, The (1987) \u2192 Raiders of the Lost Ark (1981)"],["Blade Runner (1982), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Empire Strikes Back, The (1980), Fugitive, The (1993) \u2192 Raiders of the Lost Ark (1981)"],["Empire Strikes Back, The (1980), Braveheart (1995) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Back to the Future (1985), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980)"],["Empire Strikes Back, The (1980), Back to the Future (1985) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Star Wars (1977), Empire Strikes Back, The (1980), Fugitive, The (1993) \u2192 Raiders of the Lost Ark (1981)"],["Indiana Jones and the Last Crusade (1989), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Indiana Jones and the Last Crusade (1989), Star Wars (1977), Return of the Jedi (1983) \u2192 Empire Strikes Back, The (1980)"],["Toy Story (1995), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Monty Python and the Holy Grail (1974), Empire Strikes Back, The (1980) \u2192 Raiders of the Lost Ark (1981)"],["Raiders of the Lost Ark (1981), Fugitive, The (1993) \u2192 Star Wars (1977)"],["Forrest Gump (1994), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Terminator, The (1984), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Back to the Future (1985), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Empire Strikes Back, The (1980), Princess Bride, The (1987) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Pulp Fiction (1994), Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Forrest Gump (1994) \u2192 Raiders of the Lost Ark (1981)"],["Terminator, The (1984) \u2192 Raiders of the Lost Ark (1981)"],["Indiana Jones and the Last Crusade (1989), Star Wars (1977), Return of the Jedi (1983) \u2192 Raiders of the Lost Ark (1981)"],["Silence of the Lambs, The (1991), Princess Bride, The (1987) \u2192 Star Wars (1977)"],["Return of the Jedi (1983), Princess Bride, The (1987) \u2192 Empire Strikes Back, The (1980)"],["Empire Strikes Back, The (1980), Fugitive, The (1993) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Silence of the Lambs, The (1991), Alien (1979) \u2192 Star Wars (1977)"],["Pulp Fiction (1994), Empire Strikes Back, The (1980) \u2192 Raiders of the Lost Ark (1981)"],["Indiana Jones and the Last Crusade (1989), Return of the Jedi (1983) \u2192 Empire Strikes Back, The (1980)"],["Godfather: Part II, The (1974) \u2192 Godfather, The (1972)"],["Terminator 2: Judgment Day (1991), Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Return of the Jedi (1983), Princess Bride, The (1987) \u2192 Raiders of the Lost Ark (1981)"],["Indiana Jones and the Last Crusade (1989), Return of the Jedi (1983) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Back to the Future (1985) \u2192 Raiders of the Lost Ark (1981)"],["Silence of the Lambs, The (1991), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Terminator 2: Judgment Day (1991), Star Wars (1977) \u2192 Raiders of the Lost Ark (1981)"],["Return of the Jedi (1983), Fugitive, The (1993) \u2192 Raiders of the Lost Ark (1981)"],["Indiana Jones and the Last Crusade (1989) \u2192 Star Wars (1977)"],["Raiders of the Lost Ark (1981), Godfather, The (1972) \u2192 Star Wars (1977)"],["Pulp Fiction (1994), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Terminator 2: Judgment Day (1991), Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980)"],["Silence of the Lambs, The (1991), Empire Strikes Back, The (1980), Star Wars (1977) \u2192 Raiders of the Lost Ark (1981)"],["Indiana Jones and the Last Crusade (1989), Return of the Jedi (1983) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Aliens (1986), Star Wars (1977) \u2192 Raiders of the Lost Ark (1981)"],["Shawshank Redemption, The (1994), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Indiana Jones and the Last Crusade (1989), Star Wars (1977) \u2192 Raiders of the Lost Ark (1981)"],["Fargo (1996), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Star Wars (1977), Terminator, The (1984), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980)"],["Star Wars (1977), Princess Bride, The (1987), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980)"],["Alien (1979) \u2192 Star Wars (1977)"],["Die Hard (1988) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Fugitive, The (1993) \u2192 Raiders of the Lost Ark (1981)"],["Indiana Jones and the Last Crusade (1989), Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Return of the Jedi (1983)"],["Schindler's List (1993), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Die Hard (1988) \u2192 Star Wars (1977)"],["Star Wars (1977), Return of the Jedi (1983), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980)"],["Indiana Jones and the Last Crusade (1989), Return of the Jedi (1983) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Star Wars (1977), Princess Bride, The (1987) \u2192 Raiders of the Lost Ark (1981)"],["Indiana Jones and the Last Crusade (1989), Empire Strikes Back, The (1980) \u2192 Return of the Jedi (1983)"],["Star Wars (1977), Empire Strikes Back, The (1980), Return of the Jedi (1983) \u2192 Raiders of the Lost Ark (1981)"],["Empire Strikes Back, The (1980), Return of the Jedi (1983) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Return of the Jedi (1983), Silence of the Lambs, The (1991) \u2192 Empire Strikes Back, The (1980)"],["Silence of the Lambs, The (1991), Star Wars (1977), Return of the Jedi (1983) \u2192 Raiders of the Lost Ark (1981)"],["Silence of the Lambs, The (1991), Empire Strikes Back, The (1980) \u2192 Raiders of the Lost Ark (1981)"],["Indiana Jones and the Last Crusade (1989), Star Wars (1977) \u2192 Empire Strikes Back, The (1980)"],["Princess Bride, The (1987) \u2192 Star Wars (1977)"],["Raiders of the Lost Ark (1981) \u2192 Star Wars (1977)"],["Pulp Fiction (1994), Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Terminator 2: Judgment Day (1991) \u2192 Star Wars (1977)"],["Blade Runner (1982) \u2192 Star Wars (1977)"],["Star Wars (1977), Terminator, The (1984) \u2192 Empire Strikes Back, The (1980)"],["Star Wars (1977), Back to the Future (1985) \u2192 Empire Strikes Back, The (1980)"],["Blade Runner (1982), Star Wars (1977) \u2192 Raiders of the Lost Ark (1981)"],["Monty Python and the Holy Grail (1974), Star Wars (1977) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Raiders of the Lost Ark (1981)"],["Indiana Jones and the Last Crusade (1989), Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Terminator, The (1984) \u2192 Star Wars (1977)"],["Indiana Jones and the Last Crusade (1989) \u2192 Raiders of the Lost Ark (1981)"],["Aliens (1986) \u2192 Star Wars (1977)"],["Men in Black (1997) \u2192 Star Wars (1977)"],["Terminator 2: Judgment Day (1991), Star Wars (1977) \u2192 Empire Strikes Back, The (1980)"],["Silence of the Lambs, The (1991), Return of the Jedi (1983) \u2192 Raiders of the Lost Ark (1981)"],["Empire Strikes Back, The (1980), Princess Bride, The (1987) \u2192 Return of the Jedi (1983)"],["Back to the Future (1985), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980)"],["Star Wars (1977), Rock, The (1996) \u2192 Return of the Jedi (1983)"],["Star Wars (1977), Star Trek: First Contact (1996) \u2192 Return of the Jedi (1983)"],["Silence of the Lambs, The (1991), Fugitive, The (1993) \u2192 Star Wars (1977)"],["Return of the Jedi (1983), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980)"],["Indiana Jones and the Last Crusade (1989), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980)"],["Silence of the Lambs, The (1991), Return of the Jedi (1983) \u2192 Empire Strikes Back, The (1980)"],["Empire Strikes Back, The (1980), Return of the Jedi (1983) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Independence Day (ID4) (1996), Star Wars (1977) \u2192 Return of the Jedi (1983)"],["Star Wars (1977), Empire Strikes Back, The (1980), Silence of the Lambs, The (1991) \u2192 Return of the Jedi (1983)"],["Back to the Future (1985) \u2192 Star Wars (1977)"],["Princess Bride, The (1987), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980)"],["Empire Strikes Back, The (1980) \u2192 Raiders of the Lost Ark (1981)"],["Indiana Jones and the Last Crusade (1989), Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Return of the Jedi (1983)"],["Star Wars (1977), Braveheart (1995) \u2192 Empire Strikes Back, The (1980)"],["Star Wars (1977), Alien (1979) \u2192 Raiders of the Lost Ark (1981)"],["Dead Poets Society (1989) \u2192 Star Wars (1977)"],["Silence of the Lambs, The (1991), Godfather, The (1972) \u2192 Star Wars (1977)"],["Groundhog Day (1993) \u2192 Star Wars (1977)"],["Star Wars (1977), Raiders of the Lost Ark (1981), Fugitive, The (1993) \u2192 Empire Strikes Back, The (1980)"],["Fugitive, The (1993) \u2192 Star Wars (1977)"],["E.T. the Extra-Terrestrial (1982) \u2192 Star Wars (1977)"],["Pulp Fiction (1994), Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980)"],["Star Wars (1977), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Return of the Jedi (1983)"],["Indiana Jones and the Last Crusade (1989), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Pulp Fiction (1994), Star Wars (1977) \u2192 Raiders of the Lost Ark (1981)"],["Monty Python and the Holy Grail (1974) \u2192 Star Wars (1977)"],["Jaws (1975) \u2192 Star Wars (1977)"],["Terminator 2: Judgment Day (1991) \u2192 Raiders of the Lost Ark (1981)"],["Terminator 2: Judgment Day (1991), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980)"],["Silence of the Lambs, The (1991), Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Star Wars (1977), Terminator, The (1984) \u2192 Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Wizard of Oz, The (1939) \u2192 Star Wars (1977)"],["Return of the Jedi (1983), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Back to the Future (1985) \u2192 Raiders of the Lost Ark (1981)"],["Princess Bride, The (1987), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Indiana Jones and the Last Crusade (1989), Star Wars (1977) \u2192 Return of the Jedi (1983)"],["Terminator 2: Judgment Day (1991), Raiders of the Lost Ark (1981) \u2192 Terminator, The (1984)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Return of the Jedi (1983)"],["Braveheart (1995) \u2192 Raiders of the Lost Ark (1981)"],["Braveheart (1995) \u2192 Star Wars (1977)"],["Terminator, The (1984), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980)"],["Star Trek: First Contact (1996) \u2192 Star Wars (1977)"],["Silence of the Lambs, The (1991), Fugitive, The (1993) \u2192 Raiders of the Lost Ark (1981)"],["Silence of the Lambs, The (1991), Return of the Jedi (1983) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Silence of the Lambs, The (1991), Return of the Jedi (1983) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Star Wars (1977), Princess Bride, The (1987) \u2192 Empire Strikes Back, The (1980)"],["Back to the Future (1985), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Shawshank Redemption, The (1994), Star Wars (1977) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Forrest Gump (1994) \u2192 Empire Strikes Back, The (1980)"],["Silence of the Lambs, The (1991), Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Return of the Jedi (1983)"],["Forrest Gump (1994) \u2192 Star Wars (1977)"],["Aliens (1986) \u2192 Raiders of the Lost Ark (1981)"],["Monty Python and the Holy Grail (1974), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980)"],["Jaws (1975) \u2192 Silence of the Lambs, The (1991)"],["Silence of the Lambs, The (1991), Empire Strikes Back, The (1980) \u2192 Return of the Jedi (1983)"],["Shawshank Redemption, The (1994), Silence of the Lambs, The (1991) \u2192 Star Wars (1977)"],["Toy Story (1995), Fargo (1996) \u2192 Star Wars (1977)"],["Blade Runner (1982), Star Wars (1977) \u2192 Empire Strikes Back, The (1980)"],["Star Wars (1977), Back to the Future (1985) \u2192 Return of the Jedi (1983)"],["Forrest Gump (1994) \u2192 Raiders of the Lost Ark (1981)"],["Silence of the Lambs, The (1991), Star Wars (1977) \u2192 Raiders of the Lost Ark (1981)"],["Sting, The (1973) \u2192 Star Wars (1977)"],["Terminator, The (1984) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Shawshank Redemption, The (1994), Star Wars (1977) \u2192 Silence of the Lambs, The (1991)"],["Star Wars (1977), Back to the Future (1985) \u2192 Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980)"],["Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Terminator 2: Judgment Day (1991), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Blade Runner (1982) \u2192 Raiders of the Lost Ark (1981)"],["2001: A Space Odyssey (1968) \u2192 Star Wars (1977)"],["Fugitive, The (1993) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Alien (1979) \u2192 Silence of the Lambs, The (1991)"],["Apollo 13 (1995) \u2192 Star Wars (1977)"],["Indiana Jones and the Last Crusade (1989), Star Wars (1977) \u2192 Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Dead Poets Society (1989) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Fugitive, The (1993) \u2192 Empire Strikes Back, The (1980)"],["Aliens (1986) \u2192 Silence of the Lambs, The (1991)"],["Monty Python and the Holy Grail (1974), Star Wars (1977) \u2192 Empire Strikes Back, The (1980)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Apollo 13 (1995) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Alien (1979) \u2192 Empire Strikes Back, The (1980)"],["Star Wars (1977), Braveheart (1995) \u2192 Return of the Jedi (1983)"],["Psycho (1960) \u2192 Silence of the Lambs, The (1991)"],["Shawshank Redemption, The (1994), Star Wars (1977) \u2192 Return of the Jedi (1983)"],["Jaws (1975) \u2192 Raiders of the Lost Ark (1981)"],["Empire Strikes Back, The (1980) \u2192 Return of the Jedi (1983)"],["Terminator, The (1984), Raiders of the Lost Ark (1981) \u2192 Terminator 2: Judgment Day (1991)"],["Toy Story (1995) \u2192 Star Wars (1977)"],["E.T. the Extra-Terrestrial (1982) \u2192 Raiders of the Lost Ark (1981)"],["Raiders of the Lost Ark (1981), Braveheart (1995) \u2192 Empire Strikes Back, The (1980)"],["Silence of the Lambs, The (1991), Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Independence Day (ID4) (1996) \u2192 Star Wars (1977)"],["Shawshank Redemption, The (1994), Star Wars (1977) \u2192 Empire Strikes Back, The (1980)"],["Star Wars (1977), Princess Bride, The (1987) \u2192 Return of the Jedi (1983)"],["Monty Python and the Holy Grail (1974), Star Wars (1977) \u2192 Return of the Jedi (1983)"],["Terminator, The (1984), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Pulp Fiction (1994), Fargo (1996) \u2192 Star Wars (1977)"],["Pulp Fiction (1994), Silence of the Lambs, The (1991) \u2192 Star Wars (1977)"],["Alien (1979) \u2192 Silence of the Lambs, The (1991)"],["Princess Bride, The (1987) \u2192 Raiders of the Lost Ark (1981)"],["Willy Wonka and the Chocolate Factory (1971) \u2192 Star Wars (1977)"],["Fargo (1996), Godfather, The (1972) \u2192 Star Wars (1977)"],["Star Wars (1977), Schindler's List (1993) \u2192 Raiders of the Lost Ark (1981)"],["Pulp Fiction (1994), Raiders of the Lost Ark (1981) \u2192 Silence of the Lambs, The (1991)"],["Terminator 2: Judgment Day (1991), Star Wars (1977) \u2192 Return of the Jedi (1983)"],["Godfather, The (1972) \u2192 Star Wars (1977)"],["Silence of the Lambs, The (1991), Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Return of the Jedi (1983)"],["Silence of the Lambs, The (1991), Fargo (1996) \u2192 Star Wars (1977)"],["Indiana Jones and the Last Crusade (1989), Raiders of the Lost Ark (1981) \u2192 Return of the Jedi (1983)"],["Terminator 2: Judgment Day (1991), Star Wars (1977) \u2192 Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Leaving Las Vegas (1995) \u2192 Fargo (1996)"],["Princess Bride, The (1987), Raiders of the Lost Ark (1981) \u2192 Return of the Jedi (1983)"],["Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Usual Suspects, The (1995) \u2192 Star Wars (1977)"],["Usual Suspects, The (1995) \u2192 Silence of the Lambs, The (1991)"],["Contact (1997), Star Wars (1977) \u2192 Return of the Jedi (1983)"],["Casablanca (1942) \u2192 Star Wars (1977)"],["Toy Story (1995), Star Wars (1977) \u2192 Return of the Jedi (1983)"],["Indiana Jones and the Last Crusade (1989) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Indiana Jones and the Last Crusade (1989) \u2192 Empire Strikes Back, The (1980)"],["Alien (1979) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Fugitive, The (1993) \u2192 Return of the Jedi (1983)"],["Terminator, The (1984), Raiders of the Lost Ark (1981) \u2192 Silence of the Lambs, The (1991)"],["Raiders of the Lost Ark (1981), Fugitive, The (1993) \u2192 Empire Strikes Back, The (1980)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Return of the Jedi (1983)"],["Pulp Fiction (1994), Star Wars (1977) \u2192 Empire Strikes Back, The (1980)"],["Amadeus (1984) \u2192 Star Wars (1977)"],["Silence of the Lambs, The (1991) \u2192 Star Wars (1977)"],["Pulp Fiction (1994), Silence of the Lambs, The (1991) \u2192 Raiders of the Lost Ark (1981)"],["Monty Python and the Holy Grail (1974) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Alien (1979) \u2192 Return of the Jedi (1983)"],["When Harry Met Sally... (1989) \u2192 Star Wars (1977)"],["Terminator, The (1984) \u2192 Terminator 2: Judgment Day (1991)"],["Shawshank Redemption, The (1994) \u2192 Star Wars (1977)"],["Pulp Fiction (1994) \u2192 Star Wars (1977)"],["Terminator, The (1984) \u2192 Empire Strikes Back, The (1980)"],["Indiana Jones and the Last Crusade (1989), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Pulp Fiction (1994), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980)"],["Shawshank Redemption, The (1994) \u2192 Silence of the Lambs, The (1991)"],["Forrest Gump (1994) \u2192 Silence of the Lambs, The (1991)"],["Indiana Jones and the Last Crusade (1989) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Terminator 2: Judgment Day (1991) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["E.T. the Extra-Terrestrial (1982) \u2192 Silence of the Lambs, The (1991)"],["Usual Suspects, The (1995) \u2192 Pulp Fiction (1994)"],["Braveheart (1995) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Raiders of the Lost Ark (1981), Fugitive, The (1993) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Pulp Fiction (1994), Star Wars (1977) \u2192 Silence of the Lambs, The (1991)"],["Star Wars (1977), Princess Bride, The (1987) \u2192 Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["One Flew Over the Cuckoo's Nest (1975) \u2192 Silence of the Lambs, The (1991)"],["Terminator 2: Judgment Day (1991) \u2192 Empire Strikes Back, The (1980)"],["Aliens (1986) \u2192 Alien (1979)"],["Indiana Jones and the Last Crusade (1989) \u2192 Return of the Jedi (1983)"],["Silence of the Lambs, The (1991), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980)"],["Silence of the Lambs, The (1991), Star Wars (1977) \u2192 Empire Strikes Back, The (1980)"],["Schindler's List (1993) \u2192 Star Wars (1977)"],["Indiana Jones and the Last Crusade (1989), Star Wars (1977) \u2192 Empire Strikes Back, The (1980), Return of the Jedi (1983)"],["Aliens (1986) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Twelve Monkeys (1995) \u2192 Star Wars (1977)"],["Raiders of the Lost Ark (1981), Fugitive, The (1993) \u2192 Silence of the Lambs, The (1991)"],["Casablanca (1942) \u2192 Silence of the Lambs, The (1991)"],["Back to the Future (1985) \u2192 Empire Strikes Back, The (1980)"],["Back to the Future (1985) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["When Harry Met Sally... (1989) \u2192 Raiders of the Lost Ark (1981)"],["Terminator, The (1984) \u2192 Silence of the Lambs, The (1991)"],["Amadeus (1984) \u2192 Raiders of the Lost Ark (1981)"],["Princess Bride, The (1987) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Rock, The (1996) \u2192 Star Wars (1977)"],["Terminator 2: Judgment Day (1991) \u2192 Terminator, The (1984)"],["Star Wars (1977), Fugitive, The (1993) \u2192 Silence of the Lambs, The (1991)"],["When Harry Met Sally... (1989) \u2192 Silence of the Lambs, The (1991)"],["Indiana Jones and the Last Crusade (1989), Star Wars (1977) \u2192 Return of the Jedi (1983), Raiders of the Lost Ark (1981)"],["Terminator, The (1984) \u2192 Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Aliens (1986) \u2192 Empire Strikes Back, The (1980)"],["Pulp Fiction (1994), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["One Flew Over the Cuckoo's Nest (1975) \u2192 Star Wars (1977)"],["Pulp Fiction (1994) \u2192 Silence of the Lambs, The (1991)"],["Raiders of the Lost Ark (1981), Fugitive, The (1993) \u2192 Return of the Jedi (1983)"],["Jerry Maguire (1996) \u2192 Star Wars (1977)"],["Blade Runner (1982) \u2192 Silence of the Lambs, The (1991)"],["Blade Runner (1982) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Star Wars (1977), Silence of the Lambs, The (1991) \u2192 Return of the Jedi (1983)"],["Forrest Gump (1994) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Amadeus (1984) \u2192 Silence of the Lambs, The (1991)"],["Fugitive, The (1993) \u2192 Silence of the Lambs, The (1991)"],["Terminator, The (1984) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Alien (1979) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Terminator 2: Judgment Day (1991) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Star Wars (1977), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Silence of the Lambs, The (1991)"],["Usual Suspects, The (1995) \u2192 Fargo (1996)"],["Indiana Jones and the Last Crusade (1989) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Star Wars (1977), Fugitive, The (1993) \u2192 Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Fugitive, The (1993) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Star Wars (1977) \u2192 Return of the Jedi (1983)"],["Pulp Fiction (1994), Star Wars (1977) \u2192 Return of the Jedi (1983)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Silence of the Lambs, The (1991)"],["Empire Strikes Back, The (1980), Return of the Jedi (1983) \u2192 Silence of the Lambs, The (1991)"],["Star Wars (1977), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Indiana Jones and the Last Crusade (1989)"],["Star Wars (1977), Return of the Jedi (1983), Raiders of the Lost Ark (1981) \u2192 Silence of the Lambs, The (1991)"],["Blade Runner (1982) \u2192 Empire Strikes Back, The (1980)"],["Princess Bride, The (1987) \u2192 Empire Strikes Back, The (1980)"],["Silence of the Lambs, The (1991), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Dead Man Walking (1995) \u2192 Fargo (1996)"],["One Flew Over the Cuckoo's Nest (1975) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Empire Strikes Back, The (1980), Return of the Jedi (1983) \u2192 Silence of the Lambs, The (1991)"],["Star Trek: First Contact (1996) \u2192 Return of the Jedi (1983)"],["Alien (1979) \u2192 Empire Strikes Back, The (1980)"],["Pulp Fiction (1994) \u2192 Raiders of the Lost Ark (1981)"],["Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980)"],["Indiana Jones and the Last Crusade (1989) \u2192 Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Back to the Future (1985) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Star Wars (1977), Princess Bride, The (1987) \u2192 Silence of the Lambs, The (1991)"],["Twelve Monkeys (1995) \u2192 Fargo (1996)"],["Shawshank Redemption, The (1994) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Silence of the Lambs, The (1991)"],["Monty Python and the Holy Grail (1974) \u2192 Silence of the Lambs, The (1991)"],["Braveheart (1995) \u2192 Empire Strikes Back, The (1980)"],["Silence of the Lambs, The (1991), Raiders of the Lost Ark (1981) \u2192 Return of the Jedi (1983)"],["Return of the Jedi (1983), Raiders of the Lost Ark (1981) \u2192 Silence of the Lambs, The (1991)"],["Sense and Sensibility (1995) \u2192 Star Wars (1977)"],["Alien (1979) \u2192 Aliens (1986)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Return of the Jedi (1983), Raiders of the Lost Ark (1981)"],["Star Wars (1977), Fargo (1996) \u2192 Return of the Jedi (1983)"],["Monty Python and the Holy Grail (1974) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Terminator, The (1984) \u2192 Terminator 2: Judgment Day (1991), Raiders of the Lost Ark (1981)"],["Terminator 2: Judgment Day (1991) \u2192 Fugitive, The (1993)"],["Usual Suspects, The (1995) \u2192 Raiders of the Lost Ark (1981)"],["Indiana Jones and the Last Crusade (1989) \u2192 Star Wars (1977), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Casablanca (1942) \u2192 Raiders of the Lost Ark (1981)"],["Empire Strikes Back, The (1980) \u2192 Silence of the Lambs, The (1991)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Silence of the Lambs, The (1991)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Indiana Jones and the Last Crusade (1989)"],["Princess Bride, The (1987) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Terminator, The (1984) \u2192 Star Wars (1977), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Empire Strikes Back, The (1980), Return of the Jedi (1983) \u2192 Star Wars (1977), Silence of the Lambs, The (1991)"],["Braveheart (1995) \u2192 Silence of the Lambs, The (1991)"],["Back to the Future (1985) \u2192 Return of the Jedi (1983)"],["Silence of the Lambs, The (1991) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Empire Strikes Back, The (1980), Return of the Jedi (1983) \u2192 Indiana Jones and the Last Crusade (1989)"],["Alien (1979) \u2192 Silence of the Lambs, The (1991), Star Wars (1977)"],["Terminator 2: Judgment Day (1991) \u2192 Pulp Fiction (1994)"],["Back to the Future (1985) \u2192 Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Silence of the Lambs, The (1991), Star Wars (1977)"],["Blade Runner (1982) \u2192 Alien (1979)"],["Silence of the Lambs, The (1991), Raiders of the Lost Ark (1981) \u2192 Pulp Fiction (1994)"],["Independence Day (ID4) (1996) \u2192 Return of the Jedi (1983)"],["Schindler's List (1993) \u2192 Silence of the Lambs, The (1991)"],["Back to the Future (1985) \u2192 Silence of the Lambs, The (1991)"],["Raiders of the Lost Ark (1981) \u2192 Return of the Jedi (1983)"],["Raiders of the Lost Ark (1981) \u2192 Silence of the Lambs, The (1991)"],["Star Wars (1977), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Princess Bride, The (1987)"],["Alien (1979) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Star Trek: First Contact (1996) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Indiana Jones and the Last Crusade (1989), Star Wars (1977)"],["Blade Runner (1982) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Star Wars (1977), Godfather, The (1972) \u2192 Return of the Jedi (1983)"],["Princess Bride, The (1987) \u2192 Silence of the Lambs, The (1991)"],["Monty Python and the Holy Grail (1974) \u2192 Empire Strikes Back, The (1980)"],["Braveheart (1995) \u2192 Return of the Jedi (1983)"],["Star Wars (1977), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Back to the Future (1985)"],["Empire Strikes Back, The (1980), Return of the Jedi (1983) \u2192 Indiana Jones and the Last Crusade (1989)"],["Pulp Fiction (1994), Star Wars (1977) \u2192 Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Terminator, The (1984) \u2192 Silence of the Lambs, The (1991), Raiders of the Lost Ark (1981)"],["Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Return of the Jedi (1983), Raiders of the Lost Ark (1981) \u2192 Silence of the Lambs, The (1991), Star Wars (1977)"],["Silence of the Lambs, The (1991), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Fargo (1996) \u2192 Star Wars (1977)"],["Star Wars (1977), Return of the Jedi (1983), Raiders of the Lost Ark (1981) \u2192 Indiana Jones and the Last Crusade (1989)"],["Blade Runner (1982) \u2192 Pulp Fiction (1994)"],["Princess Bride, The (1987) \u2192 Return of the Jedi (1983)"],["Braveheart (1995) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Star Wars (1977), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Fugitive, The (1993)"],["Terminator 2: Judgment Day (1991) \u2192 Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Alien (1979) \u2192 Blade Runner (1982)"],["Pulp Fiction (1994), Star Wars (1977) \u2192 Fargo (1996)"],["Terminator, The (1984) \u2192 Return of the Jedi (1983)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Back to the Future (1985)"],["Empire Strikes Back, The (1980) \u2192 Return of the Jedi (1983), Raiders of the Lost Ark (1981)"],["Braveheart (1995) \u2192 Fugitive, The (1993)"],["Empire Strikes Back, The (1980), Return of the Jedi (1983) \u2192 Indiana Jones and the Last Crusade (1989), Star Wars (1977)"],["Terminator 2: Judgment Day (1991) \u2192 Terminator, The (1984), Raiders of the Lost Ark (1981)"],["Terminator 2: Judgment Day (1991) \u2192 Silence of the Lambs, The (1991)"],["Terminator 2: Judgment Day (1991) \u2192 Return of the Jedi (1983)"],["Forrest Gump (1994) \u2192 Empire Strikes Back, The (1980)"],["Fugitive, The (1993) \u2192 Empire Strikes Back, The (1980)"],["Back to the Future (1985) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Princess Bride, The (1987)"],["Princess Bride, The (1987) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Monty Python and the Holy Grail (1974) \u2192 Return of the Jedi (1983)"],["Monty Python and the Holy Grail (1974) \u2192 Princess Bride, The (1987)"],["Fugitive, The (1993) \u2192 Pulp Fiction (1994)"],["Indiana Jones and the Last Crusade (1989) \u2192 Back to the Future (1985)"],["Back to the Future (1985) \u2192 Star Wars (1977), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Back to the Future (1985) \u2192 Indiana Jones and the Last Crusade (1989)"],["Jerry Maguire (1996) \u2192 Fargo (1996)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Fugitive, The (1993)"],["Schindler's List (1993) \u2192 Raiders of the Lost Ark (1981)"],["Alien (1979) \u2192 Return of the Jedi (1983)"],["Silence of the Lambs, The (1991), Raiders of the Lost Ark (1981) \u2192 Fugitive, The (1993)"],["Return of the Jedi (1983), Raiders of the Lost Ark (1981) \u2192 Indiana Jones and the Last Crusade (1989)"],["Star Wars (1977), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Terminator, The (1984)"],["Rock, The (1996) \u2192 Return of the Jedi (1983)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Terminator, The (1984)"],["Terminator 2: Judgment Day (1991) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Alien (1979) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Forrest Gump (1994) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Forrest Gump (1994) \u2192 Braveheart (1995)"],["Forrest Gump (1994) \u2192 Return of the Jedi (1983)"],["Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Return of the Jedi (1983), Raiders of the Lost Ark (1981)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980), Return of the Jedi (1983)"],["Indiana Jones and the Last Crusade (1989) \u2192 Empire Strikes Back, The (1980), Return of the Jedi (1983)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Princess Bride, The (1987)"],["Terminator 2: Judgment Day (1991) \u2192 Star Wars (1977), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Empire Strikes Back, The (1980), Return of the Jedi (1983) \u2192 Princess Bride, The (1987)"],["Pulp Fiction (1994) \u2192 Fargo (1996)"],["Fugitive, The (1993) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Fugitive, The (1993) \u2192 Return of the Jedi (1983)"],["Independence Day (ID4) (1996) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Empire Strikes Back, The (1980) \u2192 Silence of the Lambs, The (1991), Star Wars (1977)"],["Star Wars (1977), Return of the Jedi (1983) \u2192 Empire Strikes Back, The (1980)"],["Indiana Jones and the Last Crusade (1989) \u2192 Return of the Jedi (1983), Raiders of the Lost Ark (1981)"],["Indiana Jones and the Last Crusade (1989) \u2192 Fugitive, The (1993)"],["Back to the Future (1985) \u2192 Fugitive, The (1993)"],["Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Back to the Future (1985)"],["Princess Bride, The (1987) \u2192 Monty Python and the Holy Grail (1974)"],["Monty Python and the Holy Grail (1974) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Monty Python and the Holy Grail (1974) \u2192 Pulp Fiction (1994)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Fugitive, The (1993)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Indiana Jones and the Last Crusade (1989)"],["Return of the Jedi (1983), Raiders of the Lost Ark (1981) \u2192 Fugitive, The (1993)"],["Toy Story (1995), Star Wars (1977) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Return of the Jedi (1983) \u2192 Raiders of the Lost Ark (1981)"],["Shawshank Redemption, The (1994) \u2192 Schindler's List (1993)"],["One Flew Over the Cuckoo's Nest (1975) \u2192 Godfather, The (1972)"],["Indiana Jones and the Last Crusade (1989) \u2192 Star Wars (1977), Empire Strikes Back, The (1980), Return of the Jedi (1983)"],["Silence of the Lambs, The (1991), Star Wars (1977) \u2192 Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Princess Bride, The (1987) \u2192 Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Fugitive, The (1993)"],["Star Wars (1977), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Terminator 2: Judgment Day (1991)"],["Star Wars (1977), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Pulp Fiction (1994)"],["Star Wars (1977), Godfather, The (1972) \u2192 Fargo (1996)"],["Return of the Jedi (1983), Raiders of the Lost Ark (1981) \u2192 Indiana Jones and the Last Crusade (1989), Star Wars (1977)"],["Star Wars (1977), Fargo (1996) \u2192 Godfather, The (1972)"],["Godfather, The (1972) \u2192 Fargo (1996)"],["Princess Bride, The (1987) \u2192 Pulp Fiction (1994)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Pulp Fiction (1994)"],["Usual Suspects, The (1995) \u2192 Shawshank Redemption, The (1994)"],["Braveheart (1995) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Monty Python and the Holy Grail (1974) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Shawshank Redemption, The (1994) \u2192 Fargo (1996)"],["Silence of the Lambs, The (1991), Raiders of the Lost Ark (1981) \u2192 Terminator, The (1984)"],["Silence of the Lambs, The (1991), Star Wars (1977) \u2192 Pulp Fiction (1994)"],["Indiana Jones and the Last Crusade (1989) \u2192 Silence of the Lambs, The (1991)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Terminator 2: Judgment Day (1991)"],["Braveheart (1995) \u2192 Forrest Gump (1994)"],["Usual Suspects, The (1995) \u2192 Godfather, The (1972)"],["Braveheart (1995) \u2192 Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Return of the Jedi (1983), Raiders of the Lost Ark (1981) \u2192 Princess Bride, The (1987)"],["Toy Story (1995) \u2192 Return of the Jedi (1983)"],["Princess Bride, The (1987) \u2192 Star Wars (1977), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Indiana Jones and the Last Crusade (1989) \u2192 Star Wars (1977), Return of the Jedi (1983), Raiders of the Lost Ark (1981)"],["Shawshank Redemption, The (1994) \u2192 Godfather, The (1972)"],["Shawshank Redemption, The (1994) \u2192 Pulp Fiction (1994)"],["Fugitive, The (1993) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Return of the Jedi (1983) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Princess Bride, The (1987)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Fugitive, The (1993)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Terminator, The (1984)"],["Silence of the Lambs, The (1991), Star Wars (1977) \u2192 Fargo (1996)"],["Contact (1997) \u2192 Star Wars (1977)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Princess Bride, The (1987)"],["Shawshank Redemption, The (1994) \u2192 Return of the Jedi (1983)"],["Schindler's List (1993) \u2192 Shawshank Redemption, The (1994)"],["Silence of the Lambs, The (1991) \u2192 Pulp Fiction (1994)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Indiana Jones and the Last Crusade (1989)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Pulp Fiction (1994)"],["Empire Strikes Back, The (1980) \u2192 Indiana Jones and the Last Crusade (1989)"],["Shawshank Redemption, The (1994) \u2192 Empire Strikes Back, The (1980)"],["Pulp Fiction (1994) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Star Wars (1977), Silence of the Lambs, The (1991) \u2192 Fugitive, The (1993)"],["Return of the Jedi (1983) \u2192 Empire Strikes Back, The (1980)"],["Silence of the Lambs, The (1991) \u2192 Fargo (1996)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Monty Python and the Holy Grail (1974)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Braveheart (1995)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Terminator 2: Judgment Day (1991), Star Wars (1977)"],["Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981) \u2192 Pulp Fiction (1994), Star Wars (1977)"],["Toy Story (1995), Star Wars (1977) \u2192 Empire Strikes Back, The (1980)"],["Silence of the Lambs, The (1991), Star Wars (1977) \u2192 Return of the Jedi (1983), Raiders of the Lost Ark (1981)"],["Star Wars (1977), Silence of the Lambs, The (1991) \u2192 Empire Strikes Back, The (1980), Return of the Jedi (1983)"],["Schindler's List (1993) \u2192 Fargo (1996)"],["Shawshank Redemption, The (1994) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Raiders of the Lost Ark (1981) \u2192 Fugitive, The (1993)"],["Rock, The (1996) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Back to the Future (1985)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Pulp Fiction (1994)"],["Monty Python and the Holy Grail (1974) \u2192 Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Star Wars (1977), Godfather, The (1972) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Silence of the Lambs, The (1991) \u2192 Godfather, The (1972)"],["Empire Strikes Back, The (1980) \u2192 Princess Bride, The (1987)"],["Empire Strikes Back, The (1980) \u2192 Indiana Jones and the Last Crusade (1989), Star Wars (1977)"],["Star Wars (1977) \u2192 Raiders of the Lost Ark (1981)"],["Silence of the Lambs, The (1991) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Silence of the Lambs, The (1991), Raiders of the Lost Ark (1981)"],["Empire Strikes Back, The (1980) \u2192 Fugitive, The (1993)"],["Raiders of the Lost Ark (1981) \u2192 Pulp Fiction (1994)"],["Fugitive, The (1993) \u2192 Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Silence of the Lambs, The (1991), Star Wars (1977) \u2192 Alien (1979)"],["Princess Bride, The (1987) \u2192 Star Wars (1977), Silence of the Lambs, The (1991)"],["Star Wars (1977), Fargo (1996) \u2192 Silence of the Lambs, The (1991)"],["Star Wars (1977), Fargo (1996) \u2192 Raiders of the Lost Ark (1981)"],["Return of the Jedi (1983) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Shawshank Redemption, The (1994) \u2192 Silence of the Lambs, The (1991), Star Wars (1977)"],["Shawshank Redemption, The (1994) \u2192 Fugitive, The (1993)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Indiana Jones and the Last Crusade (1989), Raiders of the Lost Ark (1981)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Terminator, The (1984)"],["Empire Strikes Back, The (1980) \u2192 Pulp Fiction (1994)"],["Fugitive, The (1993) \u2192 Terminator 2: Judgment Day (1991)"],["Fugitive, The (1993) \u2192 Star Wars (1977), Silence of the Lambs, The (1991)"],["Toy Story (1995), Star Wars (1977) \u2192 Fargo (1996)"],["Pulp Fiction (1994) \u2192 Empire Strikes Back, The (1980)"],["Pulp Fiction (1994) \u2192 Fugitive, The (1993)"],["Silence of the Lambs, The (1991), Star Wars (1977) \u2192 Shawshank Redemption, The (1994)"],["Return of the Jedi (1983) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Raiders of the Lost Ark (1981) \u2192 Silence of the Lambs, The (1991), Star Wars (1977)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Braveheart (1995)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Terminator 2: Judgment Day (1991)"],["Princess Bride, The (1987) \u2192 Fugitive, The (1993)"],["Princess Bride, The (1987) \u2192 Empire Strikes Back, The (1980), Return of the Jedi (1983)"],["Toy Story (1995) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Silence of the Lambs, The (1991) \u2192 Empire Strikes Back, The (1980)"],["Pulp Fiction (1994) \u2192 Usual Suspects, The (1995)"],["Empire Strikes Back, The (1980) \u2192 Back to the Future (1985)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Back to the Future (1985)"],["Princess Bride, The (1987) \u2192 Return of the Jedi (1983), Raiders of the Lost Ark (1981)"],["Shawshank Redemption, The (1994) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Fugitive, The (1993) \u2192 Braveheart (1995)"],["Pulp Fiction (1994) \u2192 Godfather, The (1972)"],["Empire Strikes Back, The (1980) \u2192 Silence of the Lambs, The (1991), Raiders of the Lost Ark (1981)"],["Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Fugitive, The (1993)"],["Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Princess Bride, The (1987)"],["Shawshank Redemption, The (1994) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Fugitive, The (1993) \u2192 Star Wars (1977), Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Star Wars (1977), Godfather, The (1972) \u2192 Silence of the Lambs, The (1991)"],["Twelve Monkeys (1995) \u2192 Silence of the Lambs, The (1991)"],["Twelve Monkeys (1995) \u2192 Return of the Jedi (1983)"],["Shawshank Redemption, The (1994) \u2192 Usual Suspects, The (1995)"],["Toy Story (1995) \u2192 Fargo (1996)"],["Raiders of the Lost Ark (1981) \u2192 Indiana Jones and the Last Crusade (1989)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Terminator 2: Judgment Day (1991)"],["Twelve Monkeys (1995) \u2192 Pulp Fiction (1994)"],["Star Wars (1977), Silence of the Lambs, The (1991) \u2192 Princess Bride, The (1987)"],["Fugitive, The (1993) \u2192 Shawshank Redemption, The (1994)"],["Fugitive, The (1993) \u2192 Silence of the Lambs, The (1991), Raiders of the Lost Ark (1981)"],["Fugitive, The (1993) \u2192 Indiana Jones and the Last Crusade (1989)"],["Fugitive, The (1993) \u2192 Back to the Future (1985)"],["Empire Strikes Back, The (1980) \u2192 Terminator 2: Judgment Day (1991)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Monty Python and the Holy Grail (1974)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Braveheart (1995)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Terminator, The (1984)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Princess Bride, The (1987), Raiders of the Lost Ark (1981)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Monty Python and the Holy Grail (1974)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Silence of the Lambs, The (1991), Return of the Jedi (1983)"],["Schindler's List (1993) \u2192 Pulp Fiction (1994)"],["Empire Strikes Back, The (1980) \u2192 Pulp Fiction (1994), Star Wars (1977)"],["Empire Strikes Back, The (1980) \u2192 Indiana Jones and the Last Crusade (1989), Raiders of the Lost Ark (1981)"],["Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Back to the Future (1985)"],["Silence of the Lambs, The (1991) \u2192 Return of the Jedi (1983)"],["Twelve Monkeys (1995) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Back to the Future (1985), Raiders of the Lost Ark (1981)"],["Pulp Fiction (1994) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Fugitive, The (1993) \u2192 Return of the Jedi (1983), Raiders of the Lost Ark (1981)"],["Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980), Return of the Jedi (1983)"],["Raiders of the Lost Ark (1981) \u2192 Terminator, The (1984)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Raiders of the Lost Ark (1981), Fugitive, The (1993)"],["Schindler's List (1993) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981)"],["Star Wars (1977) \u2192 Empire Strikes Back, The (1980)"],["Empire Strikes Back, The (1980) \u2192 Terminator, The (1984)"],["Empire Strikes Back, The (1980) \u2192 Silence of the Lambs, The (1991), Star Wars (1977), Raiders of the Lost Ark (1981)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Silence of the Lambs, The (1991), Empire Strikes Back, The (1980)"],["Empire Strikes Back, The (1980) \u2192 Monty Python and the Holy Grail (1974)"],["Fugitive, The (1993) \u2192 Fargo (1996)"],["Silence of the Lambs, The (1991) \u2192 Shawshank Redemption, The (1994)"],["Schindler's List (1993) \u2192 Godfather, The (1972)"],["Raiders of the Lost Ark (1981) \u2192 Princess Bride, The (1987)"],["Raiders of the Lost Ark (1981) \u2192 Back to the Future (1985)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Indiana Jones and the Last Crusade (1989), Empire Strikes Back, The (1980)"],["Empire Strikes Back, The (1980) \u2192 Indiana Jones and the Last Crusade (1989), Star Wars (1977), Raiders of the Lost Ark (1981)"],["Empire Strikes Back, The (1980) \u2192 Braveheart (1995)"],["Fugitive, The (1993) \u2192 Princess Bride, The (1987)"],["Fugitive, The (1993) \u2192 Godfather, The (1972)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Alien (1979)"],["Schindler's List (1993) \u2192 Empire Strikes Back, The (1980)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Forrest Gump (1994)"],["Empire Strikes Back, The (1980) \u2192 Terminator 2: Judgment Day (1991), Star Wars (1977)"],["Toy Story (1995) \u2192 Raiders of the Lost Ark (1981)"],["Fugitive, The (1993) \u2192 Schindler's List (1993)"],["Silence of the Lambs, The (1991) \u2192 Fugitive, The (1993)"],["Silence of the Lambs, The (1991) \u2192 Star Wars (1977), Empire Strikes Back, The (1980)"],["Silence of the Lambs, The (1991) \u2192 Godfather, The (1972)"],["Star Wars (1977), Godfather, The (1972) \u2192 Empire Strikes Back, The (1980)"],["Pulp Fiction (1994) \u2192 Silence of the Lambs, The (1991), Star Wars (1977)"],["Fargo (1996) \u2192 Godfather, The (1972)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Indiana Jones and the Last Crusade (1989), Return of the Jedi (1983)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Toy Story (1995)"],["Schindler's List (1993) \u2192 Fugitive, The (1993)"],["Empire Strikes Back, The (1980) \u2192 Back to the Future (1985), Raiders of the Lost Ark (1981)"],["Empire Strikes Back, The (1980) \u2192 Silence of the Lambs, The (1991), Return of the Jedi (1983)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Godfather, The (1972)"],["Godfather, The (1972) \u2192 Return of the Jedi (1983)"],["Star Wars (1977), Fargo (1996) \u2192 Toy Story (1995)"],["Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Empire Strikes Back, The (1980), Return of the Jedi (1983)"],["Raiders of the Lost Ark (1981) \u2192 Braveheart (1995)"],["Star Wars (1977), Return of the Jedi (1983) \u2192 Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Star Wars (1977) \u2192 Fargo (1996)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Terminator, The (1984), Raiders of the Lost Ark (1981)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Alien (1979)"],["Star Wars (1977), Fargo (1996) \u2192 Pulp Fiction (1994)"],["Star Wars (1977) \u2192 Godfather, The (1972)"],["Pulp Fiction (1994) \u2192 Shawshank Redemption, The (1994)"],["Pulp Fiction (1994) \u2192 Return of the Jedi (1983)"],["Star Wars (1977), Return of the Jedi (1983) \u2192 Toy Story (1995)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Shawshank Redemption, The (1994)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Blade Runner (1982)"],["Empire Strikes Back, The (1980) \u2192 Toy Story (1995)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Toy Story (1995)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Fargo (1996)"],["Empire Strikes Back, The (1980) \u2192 Princess Bride, The (1987), Raiders of the Lost Ark (1981)"],["Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Fugitive, The (1993)"],["Titanic (1997) \u2192 Star Wars (1977)"],["Godfather, The (1972) \u2192 Silence of the Lambs, The (1991)"],["Raiders of the Lost Ark (1981) \u2192 Terminator 2: Judgment Day (1991)"],["Empire Strikes Back, The (1980) \u2192 Alien (1979)"],["Empire Strikes Back, The (1980) \u2192 Raiders of the Lost Ark (1981), Fugitive, The (1993)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Blade Runner (1982)"],["Pulp Fiction (1994) \u2192 Princess Bride, The (1987)"],["Pulp Fiction (1994) \u2192 Silence of the Lambs, The (1991), Raiders of the Lost Ark (1981)"],["Silence of the Lambs, The (1991) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Empire Strikes Back, The (1980) \u2192 Shawshank Redemption, The (1994)"],["Empire Strikes Back, The (1980) \u2192 Terminator, The (1984), Raiders of the Lost Ark (1981)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Forrest Gump (1994)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Pulp Fiction (1994), Raiders of the Lost Ark (1981)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Godfather, The (1972)"],["Star Wars (1977), Empire Strikes Back, The (1980) \u2192 Terminator 2: Judgment Day (1991), Raiders of the Lost Ark (1981)"],["Raiders of the Lost Ark (1981) \u2192 Godfather, The (1972)"],["Return of the Jedi (1983) \u2192 Fargo (1996)"],["Return of the Jedi (1983) \u2192 Toy Story (1995)"],["Empire Strikes Back, The (1980) \u2192 Blade Runner (1982)"],["Empire Strikes Back, The (1980) \u2192 Monty Python and the Holy Grail (1974), Star Wars (1977)"],["Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Princess Bride, The (1987), Raiders of the Lost Ark (1981)"],["Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Braveheart (1995)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980), Princess Bride, The (1987)"],["Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Terminator, The (1984)"],["Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Return of the Jedi (1983), Silence of the Lambs, The (1991)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Silence of the Lambs, The (1991), Return of the Jedi (1983)"],["Star Wars (1977), Return of the Jedi (1983) \u2192 Fargo (1996)"],["Raiders of the Lost Ark (1981) \u2192 Monty Python and the Holy Grail (1974)"],["Raiders of the Lost Ark (1981) \u2192 Fargo (1996)"],["Pulp Fiction (1994) \u2192 Monty Python and the Holy Grail (1974)"],["Star Wars (1977), Return of the Jedi (1983) \u2192 Silence of the Lambs, The (1991)"],["Godfather, The (1972) \u2192 Raiders of the Lost Ark (1981)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980), Back to the Future (1985)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Aliens (1986)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Shawshank Redemption, The (1994)"],["Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Back to the Future (1985), Raiders of the Lost Ark (1981)"],["Pulp Fiction (1994) \u2192 Terminator 2: Judgment Day (1991)"],["Pulp Fiction (1994) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Star Wars (1977), Raiders of the Lost Ark (1981) \u2192 Empire Strikes Back, The (1980), Fugitive, The (1993)"],["Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Raiders of the Lost Ark (1981), Fugitive, The (1993)"],["Silence of the Lambs, The (1991) \u2192 Schindler's List (1993)"],["Star Wars (1977) \u2192 Silence of the Lambs, The (1991)"],["Raiders of the Lost Ark (1981) \u2192 Star Wars (1977), Princess Bride, The (1987)"],["Raiders of the Lost Ark (1981) \u2192 Forrest Gump (1994)"],["Empire Strikes Back, The (1980) \u2192 Pulp Fiction (1994), Raiders of the Lost Ark (1981)"],["Empire Strikes Back, The (1980) \u2192 Indiana Jones and the Last Crusade (1989), Return of the Jedi (1983)"],["Empire Strikes Back, The (1980) \u2192 Godfather, The (1972)"],["Toy Story (1995) \u2192 Silence of the Lambs, The (1991)"],["Pulp Fiction (1994) \u2192 Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Silence of the Lambs, The (1991) \u2192 Usual Suspects, The (1995)"],["Raiders of the Lost Ark (1981) \u2192 Indiana Jones and the Last Crusade (1989), Star Wars (1977)"],["Raiders of the Lost Ark (1981) \u2192 Pulp Fiction (1994), Star Wars (1977)"],["Empire Strikes Back, The (1980) \u2192 Star Wars (1977), Alien (1979)"],["Empire Strikes Back, The (1980) \u2192 Terminator 2: Judgment Day (1991), Raiders of the Lost Ark (1981)"],["Empire Strikes Back, The (1980) \u2192 Aliens (1986)"],["Fargo (1996) \u2192 Silence of the Lambs, The (1991)"],["Star Wars (1977), Return of the Jedi (1983) \u2192 Godfather, The (1972)"],["Return of the Jedi (1983) \u2192 Empire Strikes Back, The (1980), Raiders of the Lost Ark (1981)"],["Pulp Fiction (1994) \u2192 Twelve Monkeys (1995)"],["Raiders of the Lost Ark (1981) \u2192 Shawshank Redemption, The (1994)"],["Empire Strikes Back, The (1980) \u2192 Toy Story (1995), Star Wars (1977)"],["Empire Strikes Back, The (1980) \u2192 Fargo (1996)"],["Empire Strikes Back, The (1980) \u2192 Indiana Jones and the Last Crusade (1989), Star Wars (1977), Return of the Jedi (1983)"],["Godfather, The (1972) \u2192 Star Wars (1977), Return of the Jedi (1983)"],["Return of the Jedi (1983) \u2192 Silence of the Lambs, The (1991)"],["Pulp Fiction (1994) \u2192 Schindler's List (1993)"],["English Patient, The (1996) \u2192 Fargo (1996)"]],"hovertemplate":"support=%{x}\u003cbr\u003econfidence=%{y}\u003cbr\u003erule=%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#636efa","symbol":"circle"},"mode":"markers","name":"","orientation":"v","showlegend":false,"x":{"dtype":"f8","bdata":"ecfXxYxLwz9toQFLevnDP4E+O6WwvcU\u002fHUaZiueaxT9heyvQZ6fEP0G4G\u002fsekcM\u002f3b954FVuwz8x49LkHV\u002fHPz0JqV8wscY\u002fmYrnmtVhxD+qeK5ZHUbJP\u002fJ1MePS5M0\u002fQbgb+x6Rwz89CalfMLHGP2F7K9Bnp8Q\u002f\u002fYKJtZ6ExD\u002fdv3ngVW7DPxEgww\u002fVSMY\u002fSS9\u002f2kIDxj\u002flNt2\u002feeDFP7lN928eeMU\u002fYXsr0GenxD9heyvQZ6fEP\u002f2CibWehMQ\u002fmYrnmtVhxD\u002fRmaNlQxzEPwmpXzCx1sM\u002fCalfMLHWwz\u002fdv3ngVW7DP92\u002feeBVbsM\u002fgT47pbC9xT\u002fFc83qMMrEP2F7K9Bnp8Q\u002fCalfMLHWwz92MePS5B3PP6WwvRXos8M\u002fSS9\u002f2kIDxj9heyvQZ6fEP2F7K9Bnp8Q\u002fbaEBS3r5wz+OfY\u002fICcLNPwmpXzCx1sM\u002fpbC9Feizwz9BuBv7HpHDP1Km4rlmdcg\u002fQbgb+x6Rwz9p8o6vixnHP0aADD9UI8k\u002fJr38aQsNyD\u002fBxFpPQurHP4XtrUCfndI\u002fVVVVVVVVxT9GgAw\u002fVCPJP\u002fFcszqMMsU\u002f8VyzOowyxT\u002f9gom1noTEP3nH18WMS8M\u002fHUaZiueaxT\u002fdv3ngVW7DPyvQZ6cUttc\u002fSS9\u002f2kIDxj+2noTUL5jIP22hAUt6+cM\u002fCalfMLHWwz8RIMMP1UjGP2F7K9Bnp8Q\u002fBfrslML2xj8F+uyUwvbGP92\u002feeBVbsM\u002f\u002fYKJtZ6ExD8dRpmK55rFPx1GmYrnmsU\u002f0ZmjZUMcxD91GGUqnmvGP41kESDDD8U\u002fKWxvBfrsxD8pbG8F+uzEP92\u002feeBVbsM\u002f\u002fYKJtZ6ExD\u002f9gom1noTEP5mK55rVYcQ\u002fwcRaT0Lqxz9toQFLevnDP41kESDDD8U\u002f3b954FVuwz\u002fih2okiwDJP7lN928eeMU\u002fafKOr4sZxz+hAUt6+dPGP2F7K9Bnp8Q\u002f3b954FVuwz+5TfdvHnjFP55S2N4K9Mk\u002fQbgb+x6Rwz9BuBv7HpHDP92\u002feeBVbsM\u002fmYrnmtVhxD81kkWADD\u002fEPzWSRYAMP8Q\u002fNZJFgAw\u002fxD8JqV8wsdbDP92\u002feeBVbsM\u002fecfXxYxLwz\u002fRmaNlQxzEP6EBS3r508Y\u002fhgYs6eVPyz91GGUqnmvGP6WwvRXos8M\u002fsu8ROUG4yz9VVVVVVVXFP8HEWk9C6sc\u002f3b954FVuwz+BPjulsL3FP22hAUt6+cM\u002f\u002fYKJtZ6ExD\u002f9gom1noTEP8HEWk9C6sc\u002fjWQRIMMPxT8JqV8wsdbDP2F7K9Bnp8Q\u002fnlLY3gr0yT\u002fdv3ngVW7DP+KHaiSLAMk\u002fbaEBS3r5wz+lsL0V6LPDP3nH18WMS8M\u002fqniuWR1GyT9BuBv7HpHDPya9\u002fGkLDcg\u002fNZJFgAw\u002fxD+qeK5ZHUbJP55S2N4K9Mk\u002fYXsr0GenxD9heyvQZ6fEPz0JqV8wscY\u002fMePS5B1fxz+myTu+LmbMPzulsL0V6NM\u002f3b954FVuwz86WjbEQdHJP+KHaiSLAMk\u002fYXsr0GenxD9JL3\u002faQgPGPylsbwX67MQ\u002fESDDD9VIxj92MePS5B3PP22hAUt6+cM\u002ftp6E1C+YyD+SLAJk+KHKP13MuDR5x8c\u002fgT47pbC9xT+5TfdvHnjFP7lN928eeMU\u002f3b954FVuwz9VVVVVVVXFP3nH18WMS8M\u002fCalfMLHWwz\u002fFc83qMMrEP55S2N4K9Mk\u002fSS9\u002f2kIDxj9VVVVVVVXFP6p4rlkdRsk\u002fQbgb+x6Rwz9heyvQZ6fEP2ZDHBSdOco\u002fjWQRIMMPxT\u002fhbux7RE7QP0G4G\u002fsekcM\u002fYXsr0GenxD\u002fxXLM6jDLFP\u002f2CibWehMQ\u002f\u002fYKJtZ6ExD8JqV8wsdbDP5mK55rVYcQ\u002f\u002fpsHXuU2zT9JL3\u002faQgPGP92\u002feeBVbsM\u002fqniuWR1GyT8dRpmK55rFP8HEWk9C6sc\u002fkiwCZPihyj81kkWADD\u002fEP36PyAnC3cg\u002f0ZmjZUMcxD+BPjulsL3FPwmpXzCx1sM\u002fCalfMLHWwz+qeK5ZHUbJP9ZhlKl4rsk\u002fYXsr0GenxD8RIMMP1UjGP22hAUt6+cM\u002f8nUx49LkzT+qeK5ZHUbJP6p4rlkdRsk\u002fxXPN6jDKxD\u002fBxFpPQurHP9GZo2VDHMQ\u002fYXsr0GenxD9heyvQZ6fEPz0JqV8wscY\u002f\u002fYKJtZ6ExD\u002f9gom1noTEP92\u002feeBVbsM\u002fgT47pbC9xT+eUtjeCvTJP+6tQJ+dUsg\u002fPQmpXzCxxj\u002fdv3ngVW7DPwmpXzCx1sM\u002fVVVVVVVVxT\u002fRmaNlQxzEP92\u002feeBVbsM\u002fpbC9Feizwz9heyvQZ6fEPya9\u002fGkLDcg\u002fhgYs6eVPyz95x9fFjEvDP2nyjq+LGcc\u002f0ZmjZUMcxD\u002f9gom1noTEP3Yx49LkHc8\u002fdjHj0uQdzz\u002fdv3ngVW7DP83qMMpUPMc\u002fCalfMLHWwz964FVu0\u002f3LPzWSRYAMP8Q\u002f8VyzOowyxT8dRpmK55rFP0G4G\u002fsekcM\u002fPQmpXzCxxj+tJyH1CybGP2F7K9Bnp8Q\u002fqniuWR1GyT+NZBEgww\u002fFP9GZo2VDHMQ\u002fQbgb+x6Rwz\u002fdv3ngVW7DPwmpXzCx1sM\u002fecfXxYxLwz9KSP2CibXOP22hAUt6+cM\u002fP1QjWQTI0D\u002fFc83qMMrEP92\u002feeBVbsM\u002fYXsr0GenxD9dzLg0ecfHP6WwvRXos8M\u002fgT47pbC9xT+Ziuea1WHEPwmpXzCx1sM\u002fecfXxYxLwz+5TfdvHnjFP2nyjq+LGcc\u002f1mGUqXiuyT9BuBv7HpHDP9kQB0VnjsY\u002fpbC9Feizwz8pbG8F+uzEP0G4G\u002fsekcM\u002f9Qsm1noS0j9heyvQZ6fEP41kESDDD8U\u002f0ZmjZUMcxD\u002fdv3ngVW7DP92\u002feeBVbsM\u002fecfXxYxLwz\u002fydTHj0uTNP\u002fnTFhqwpMc\u002f+dMWGrCkxz\u002fxXLM6jDLFP0kvf9pCA8Y\u002fRoAMP1QjyT\u002fBxFpPQurHP8HEWk9C6sc\u002fPQmpXzCxxj\u002flNt2\u002feeDFP92\u002feeBVbsM\u002fKWxvBfrsxD+OfY\u002fICcLNP0kvf9pCA8Y\u002fPQmpXzCxxj8BMvxQjWTRPylsbwX67MQ\u002fUqbiuWZ1yD95x9fFjEvDP\u002fFcszqMMsU\u002f5Tbdv3ngxT\u002fWYZSpeK7JP8aMS5N3fM0\u002fgT47pbC9xT9BuBv7HpHDPzWSRYAMP8Q\u002fDnFQdOZoyT91GGUqnmvGPzHj0uQdX8c\u002fdRhlKp5rxj+lsL0V6LPDPwX67JTC9sY\u002fBfrslML2xj+Ziuea1WHEP7lN928eeMU\u002fYXsr0GenxD89CalfMLHGPxEgww\u002fVSMY\u002fYXsr0GenxD9p8o6vixnHPz0JqV8wscY\u002fRoAMP1QjyT+eUtjeCvTJP22hAUt6+cM\u002f\u002fYKJtZ6ExD\u002fWYZSpeK7JP9GZo2VDHMQ\u002fjWQRIMMPxT+hAUt6+dPGP6EBS3r508Y\u002fmYrnmtVhxD+NZBEgww\u002fFP4E+O6WwvcU\u002fJr38aQsNyD\u002fN6jDKVDzHP+U23b954MU\u002fxXPN6jDKxD81kkWADD\u002fEP0G4G\u002fsekcM\u002fxXPN6jDKxD\u002fRmaNlQxzEP92\u002feeBVbsM\u002fSS9\u002f2kIDxj\u002fe2PeInCDMP6WwvRXos8M\u002fldt0\u002f+aBxz8pbG8F+uzEPylsbwX67MQ\u002fUqbiuWZ1yD+5TfdvHnjFP1VVVVVVVcU\u002fRoAMP1QjyT9heyvQZ6fEP\u002fFcszqMMsU\u002fuU33bx54xT+BPjulsL3FP0kvf9pCA8Y\u002fESDDD9VIxj+Ziuea1WHEP+KHaiSLAMk\u002fK9BnpxS21z\u002f9gom1noTEPz0JqV8wscY\u002fVVVVVVVVxT8dRpmK55rFP2F7K9Bnp8Q\u002fYXsr0GenxD8x49LkHV\u002fHP4E+O6WwvcU\u002fCalfMLHWwz8dRpmK55rFP2F7K9Bnp8Q\u002fYXsr0GenxD8pbG8F+uzEP073bx54lcs\u002f4W7se0RO0D9JL3\u002faQgPGP0kvf9pCA8Y\u002fQbgb+x6Rwz+2noTUL5jIP13MuDR5x8c\u002fhgYs6eVPyz\u002fZEAdFZ47GPx1GmYrnmsU\u002fuU33bx54xT+5TfdvHnjFP3nH18WMS8M\u002fYXsr0GenxD+qeK5ZHUbJP7aehNQvmMg\u002fESDDD9VIxj9toQFLevnDP8VzzeowysQ\u002fVVVVVVVVxT8dRpmK55rFPwmpXzCx1sM\u002fWh1GmYrnyj9GgAw\u002fVCPJP0kvf9pCA8Y\u002fPQmpXzCxxj8JqV8wsdbDP2F7K9Bnp8Q\u002f8VyzOowyxT+5TfdvHnjFPz4iJwh3Y88\u002fbaEBS3r5wz81kkWADD\u002fEP\u002f2CibWehMQ\u002fVVVVVVVVxT+BPjulsL3FPwmpXzCx1sM\u002fKWxvBfrsxD9heyvQZ6fEP8HEWk9C6sc\u002f8VyzOowyxT8+IicId2PPPz4iJwh3Y88\u002fYXsr0GenxD\u002fRmaNlQxzEPwmpXzCx1sM\u002fHUaZiueaxT+lsL0V6LPDP8HEWk9C6sc\u002fESDDD9VIxj+BPjulsL3FP8VzzeowysQ\u002f\u002fYKJtZ6ExD81kkWADD\u002fEP92\u002feeBVbsM\u002f3b954FVuwz92MePS5B3PP2F7K9Bnp8Q\u002fYXsr0GenxD8nCHdj3yPSP0G4G\u002fsekcM\u002fQbgb+x6Rwz+tJyH1CybGP2F7K9Bnp8Q\u002fmYrnmtVhxD\u002fRmaNlQxzEPwmpXzCx1sM\u002fecfXxYxLwz95x9fFjEvDP1VVVVVVVcU\u002fnlLY3gr0yT\u002f9gom1noTEP22hAUt6+cM\u002fbaEBS3r5wz9toQFLevnDP22hAUt6+cM\u002fCalfMLHWwz\u002fN6jDKVDzHP2F7K9Bnp8Q\u002fjWQRIMMPxT+BPjulsL3FP\u002fFcszqMMsU\u002f8VyzOowyxT9p8o6vixnHP\u002f2CibWehMQ\u002f\u002fYKJtZ6ExD\u002f9gom1noTEP7lN928eeMU\u002fKWxvBfrsxD9p8o6vixnHP92\u002feeBVbsM\u002f0ZmjZUMcxD\u002fRmaNlQxzEPwmpXzCx1sM\u002fxXPN6jDKxD\u002fFc83qMMrEP0G4G\u002fsekcM\u002fecfXxYxLwz\u002fdv3ngVW7DP92\u002feeBVbsM\u002f3b954FVuwz+qeK5ZHUbJP6p4rlkdRsk\u002fNZJFgAw\u002fxD9heyvQZ6fEP92\u002feeBVbsM\u002f3b954FVuwz+qeK5ZHUbJPz0JqV8wscY\u002fPQmpXzCxxj9BuBv7HpHDP0aADD9UI8k\u002f8nUx49LkzT\u002fRmaNlQxzEP9GZo2VDHMQ\u002f0ZmjZUMcxD+OfY\u002fICcLNP\u002f2CibWehMQ\u002f8VyzOowyxT9heyvQZ6fEP2F7K9Bnp8Q\u002f4odqJIsAyT8x49LkHV\u002fHP6WwvRXos8M\u002fjWQRIMMPxT+OfY\u002fICcLNP4E+O6WwvcU\u002fQbgb+x6Rwz9toQFLevnDP4E+O6WwvcU\u002fjWQRIMMPxT+Ziuea1WHEP92\u002feeBVbsM\u002f3b954FVuwz\u002fZEAdFZ47GP0G4G\u002fsekcM\u002f2RAHRWeOxj8qhe2tQJ\u002fNPylsbwX67MQ\u002fNZJFgAw\u002fxD9BuBv7HpHDP0G4G\u002fsekcM\u002fmYrnmtVhxD+5TfdvHnjFP92\u002feeBVbsM\u002fuU33bx54xT+lsL0V6LPDP9GZo2VDHMQ\u002f3b954FVuwz\u002fdv3ngVW7DP92\u002feeBVbsM\u002fecfXxYxLwz\u002f2JKR+wcTKP2F7K9Bnp8Q\u002fQbgb+x6Rwz\u002fxXLM6jDLFP\u002fFcszqMMsU\u002f5Tbdv3ngxT8+IicId2PPPz0JqV8wscY\u002fPQmpXzCxxj8JqV8wsdbDP41kESDDD8U\u002fQtGZo2VDzD8mvfxpCw3IPylsbwX67MQ\u002fgT47pbC9xT\u002fe2PeInCDMP8HEWk9C6sc\u002fwcRaT0Lqxz\u002fBxFpPQurHP8VzzeowysQ\u002fwcRaT0Lqxz\u002fFc83qMMrEP0pI\u002fYKJtc4\u002fFuizUwrbyz\u002fdv3ngVW7DP92\u002feeBVbsM\u002f3b954FVuwz\u002fdv3ngVW7DP22hAUt6+cM\u002fYXsr0GenxD9heyvQZ6fEP1VVVVVVVcU\u002f\u002fYKJtZ6ExD964FVu0\u002f3LP3nH18WMS8M\u002fSS9\u002f2kIDxj9JL3\u002faQgPGP92\u002feeBVbsM\u002fVVVVVVVVxT\u002f9gom1noTEPzHj0uQdX8c\u002fMePS5B1fxz87pbC9FejTP4YGLOnlT8s\u002fgT47pbC9xT\u002fN6jDKVDzHP073bx54lcs\u002fKWxvBfrsxD81kkWADD\u002fEP0G4G\u002fsekcM\u002fjWQRIMMPxT+NZBEgww\u002fFP\u002fJ1MePS5M0\u002f0ZmjZUMcxD\u002fRmaNlQxzEPx1GmYrnmsU\u002fafKOr4sZxz9p8o6vixnHP8VzzeowysQ\u002fxXPN6jDKxD\u002fdv3ngVW7DP2nyjq+LGcc\u002fafKOr4sZxz\u002fRmaNlQxzEP459j8gJws0\u002fhgYs6eVPyz8F+uyUwvbGP7lN928eeMU\u002f3b954FVuwz\u002fdv3ngVW7DP0aADD9UI8k\u002fWh1GmYrnyj8F+uyUwvbGP6EBS3r508Y\u002foQFLevnTxj95x9fFjEvDPwmpXzCx1sM\u002f\u002fYKJtZ6ExD+hAUt6+dPGPz0JqV8wscY\u002fPQmpXzCxxj89CalfMLHGP6WwvRXos8M\u002fmYrnmtVhxD\u002f9gom1noTEPzWSRYAMP8Q\u002fNZJFgAw\u002fxD9BuBv7HpHDP7aehNQvmMg\u002fkiwCZPihyj91GGUqnmvGP9GZo2VDHMQ\u002fQbgb+x6Rwz\u002fRmaNlQxzEP9GZo2VDHMQ\u002f0ZmjZUMcxD\u002fRmaNlQxzEPxEgww\u002fVSMY\u002fESDDD9VIxj9heyvQZ6fEP2F7K9Bnp8Q\u002fYXsr0GenxD9heyvQZ6fEP2F7K9Bnp8Q\u002fbaEBS3r5wz9JL3\u002faQgPGP0kvf9pCA8Y\u002fSS9\u002f2kIDxj86WjbEQdHJP6WwvRXos8M\u002f\u002fYKJtZ6ExD9JL3\u002faQgPGP6WwvRXos8M\u002fnlLY3gr0yT+eUtjeCvTJP5mK55rVYcQ\u002fpbC9Feizwz+F7a1An53SP4E+O6WwvcU\u002fgT47pbC9xT+BPjulsL3FP4E+O6WwvcU\u002fQbgb+x6Rwz8OcVB05mjJP0G4G\u002fsekcM\u002f1mGUqXiuyT\u002fWYZSpeK7JPx1GmYrnmsU\u002fHUaZiueaxT8dRpmK55rFP92\u002feeBVbsM\u002f3b954FVuwz\u002fRmaNlQxzEP92\u002feeBVbsM\u002fuU33bx54xT+5TfdvHnjFP5XbdP\u002fmgcc\u002fecfXxYxLwz9GgAw\u002fVCPJP0aADD9UI8k\u002fRoAMP1QjyT\u002fdv3ngVW7DP7lN928eeMU\u002fKoXtrUCfzT9toQFLevnDP22hAUt6+cM\u002fecfXxYxLwz9VVVVVVVXFP1VVVVVVVcU\u002fVVVVVVVVxT9yafKOr4vJP92\u002feeBVbsM\u002fqniuWR1GyT+qeK5ZHUbJP6p4rlkdRsk\u002fJwh3Y98j0j8JqV8wsdbDP\u002fFcszqMMsU\u002fecfXxYxLwz\u002f1CybWehLSP\u002fFcszqMMsU\u002f8VyzOowyxT9GgAw\u002fVCPJP6WwvRXos8M\u002fpbC9Feizwz+NZBEgww\u002fFP41kESDDD8U\u002fjWQRIMMPxT+NZBEgww\u002fFP+KHaiSLAMk\u002fmYrnmtVhxD9GgAw\u002fVCPJP36PyAnC3cg\u002fKWxvBfrsxD8pbG8F+uzEPylsbwX67MQ\u002fKWxvBfrsxD8pbG8F+uzEP1Km4rlmdcg\u002fxXPN6jDKxD\u002fFc83qMMrEP92\u002feeBVbsM\u002f3b954FVuwz\u002fdv3ngVW7DP92\u002feeBVbsM\u002ftp6E1C+YyD\u002f2JKR+wcTKP\u002fYkpH7BxMo\u002fYXsr0GenxD9heyvQZ6fEP2F7K9Bnp8Q\u002fYXsr0GenxD9heyvQZ6fEP2F7K9Bnp8Q\u002fYXsr0GenxD9heyvQZ6fEP7aehNQvmMg\u002fUqbiuWZ1yD9SpuK5ZnXIP2F7K9Bnp8Q\u002fUqbiuWZ1yD+2noTUL5jIP\u002f2CibWehMQ\u002f\u002fYKJtZ6ExD\u002f9gom1noTEP\u002f2CibWehMQ\u002f\u002fYKJtZ6ExD\u002f9gom1noTEP5mK55rVYcQ\u002fmYrnmtVhxD\u002fBxFpPQurHPwEy\u002fFCNZNE\u002fJr38aQsNyD8mvfxpCw3IPzWSRYAMP8Q\u002fNZJFgAw\u002fxD81kkWADD\u002fEP60nIfULJsY\u002fNZJFgAw\u002fxD\u002f50xYasKTHP8HEWk9C6sc\u002fwcRaT0Lqxz\u002fRmaNlQxzEP9GZo2VDHMQ\u002f0ZmjZUMcxD8W6LNTCtvLP8HEWk9C6sc\u002fnlLY3gr0yT\u002fRmaNlQxzEP13MuDR5x8c\u002fbaEBS3r5wz9toQFLevnDP22hAUt6+cM\u002fwcRaT0Lqxz86WjbEQdHJP22hAUt6+cM\u002fNZJFgAw\u002fxD8="},"xaxis":"x","y":{"dtype":"f8","bdata":"PUL1mbbG7z8ylwhPCpLvP7MaRRw6ae8\u002fhfYS2kto7z9hHxf2cWHvP9aHxvrQWO8\u002fe\u002fXq1atX7z9GF1100UXvPwb0F9BfQO8\u002f4qz8hDgr7z\u002fQ26S7jCnvPzZo8mWDJu8\u002fKvJZN5gi7z\u002fFHXFH3BHvPxI5Qbgb++4\u002fl2\u002f5lm\u002f57j+0bjBFPuvuP9\u002fe3t7e3u4\u002ft23btm3b7j+987c4rdnuP9SuRO1K1O4\u002fkj0DUenI7j+SPQNR6cjuP3xEThDuxu4\u002fT+zETuzE7j9TA3vH1MDuP8prKK+hvO4\u002fymsor6G87j+WxRntHrbuP5bFGe0etu4\u002fXJzWbJ+o7j+amZmZmZnuPzJ\u002fr41Yl+4\u002f3zOJ3jOJ7j+JiIiIiIjuP2wor6G8hu4\u002ff35+fn5+7j9mZmZmZmbuP2ZmZmZmZu4\u002fWf6S5S9Z7j\u002fEWfkJcVbuP8RZ+QlxVu4\u002f\u002fqhT\u002fqhT7j8O5TWU11DuPw7lNZTXUO4\u002fHh4eHh4e7j8m1ALGJA7uP453VLP+DO4\u002fft\u002f3fd\u002f37T93Nuo7G\u002fXtP38DTDXH7O0\u002fep7neZ7n7T+RmLczJObtP9o+UT1o5O0\u002f2j5RPWjk7T\u002fnh0XKwNPtP14Is10Is+0\u002fZU1ZU9aU7T+GfVzYx4XtPwPOvYWOd+0\u002fdNFFF1107T8SShvvqGbtP9Sb3vSmN+0\u002fMzMzMzMz7T980id90iftP1jhyw0xIO0\u002fEk000UQT7T8STTTRRBPtP+0ZiEpH9uw\u002f94nqQSPv7D\u002fpoosuuujsP+miiy666Ow\u002f4XwMzsfg7D8UlwzBOtrsPzZlTVlT1uw\u002fGs1lNJfR7D8azWU0l9HsP+BrI9alx+w\u002fMQzDMAzD7D8xDMMwDMPsP5YyCXYVvuw\u002fLqfg5RS87D+vRO1K1K7sP7VewDanq+w\u002fmpmZmZmZ7D\u002f0sohPIJXsP+96G\u002f2hkOw\u002faM4aFE977D8bx3Ecx3HsPxJ3xB1xR+w\u002fSRl4ujU\u002f7D\u002fY+GZo7T7sP+Kp8FR4Kuw\u002fGZyPwfkY7D8ZnI\u002fB+RjsP6pcd7zYEuw\u002fIMF9BPcR7D8MDAwMDAzsPwwMDAwMDOw\u002fDAwMDAwM7D8U1YNG3vnrP+djcD4G5+s\u002f5brjxZbg6z\u002fc29vb29vrP+NUwC\u002fc2us\u002fa2DvmBrY6z+hvIbyGsrrP7R9onrQyOs\u002fCejBalrH6z+EWsCYxMHrP1kLBXRsvus\u002fvLu7u7u76z\u002fPusEU+azrP6yrq6urq+s\u002fLyA2lYac6z8vIDaVhpzrP5ubm5ubm+s\u002f4ziO4ziO6z98e3t7e3vrP34oJBfweus\u002fRNvfY3do6z\u002fyzt\u002fitGbrPz8ttvHTYus\u002f15Q1ZU1Z6z9LS0tLS0vrP5J3\u002fhanNes\u002f2rJly5Yt6z8bGxsbGxvrPyjg+fS4Ges\u002fF1100UUX6z8Oa9+w9g3rPz21sNJTC+s\u002fWrAFW7AF6z9asAVbsAXrP6f1KwVq\u002feo\u002f+vr6+vr66j\u002f43nvvvffqP5kUL5BJ8eo\u002f6+rq6urq6j9Hca5jFOfqPy2usbjG4uo\u002fChiTOHjf6j8k5FTAL9zqPyxkIQtZyOo\u002fsT401ofG6j9aUO05mb7qP7rooosuuuo\u002f1sPqYfWw6j\u002fRwC0CerDqP6qqqqqqquo\u002fqqqqqqqq6j\u002fEqd9zS5zqP8Sp33NLnOo\u002fp6wpa8qa6j9PqT+l\u002fpTqPyypraS2kuo\u002fjC666KKL6j9vpz9iAXfqP+TV6ct4deo\u002fnIKXU\u002fBy6j8Sp37PLXHqP2thpacWVuo\u002f5z67gNhU6j+rpFFtuUrqPx0y9trlR+o\u002f5KOTj04+6j+zJJ6vKzbqPy+66KKLLuo\u002fJppoookm6j+tAoIh2SLqP+ahY3hxHuo\u002f5qFjeHEe6j+eq1g2vhnqPyELWchCFuo\u002fED744IMP6j\u002fCTy5E3QzqPwAAAAAAAOo\u002fCZgYosP96T99aKwPjfXpP8\u002fQZ+gz9Ok\u002fvR85zdfq6T\u002fe9KY3venpP4aVnlpY6ek\u002fb9DtWjnh6T8wb2dIzNvpP6wuw17pz+k\u002frC7DXunP6T+gEGflJ8TpP4EerKZ1vOk\u002fxJsRb0a86T+5ubm5ubnpPykuGYJ1tOk\u002fn5Ppq4Sx6T+WexphuafpP5Z7GmG5p+k\u002fKiAYki2i6T+ZmZmZmZnpP5mZmZmZmek\u002fmZmZmZmZ6T+ZmZmZmZnpPzP2h8HCkek\u002fDpk7ZO6Q6T8OmTtk7pDpP08Y1WlykOk\u002fgEPzuf546T94d3d3d3fpPyBkqOwwdek\u002fKZdyKZdy6T\u002fBFmzBFmzpPxaykIUsZOk\u002ftH6lQK1f6T9TmbANglPpP\u002fw52\u002fEhSOk\u002f05ve9KY36T\u002fm0qEGuzPpPy35xZJfLOk\u002fAAAAAAAg6T8Xkzh43xrpP8hGZCOyEek\u002f7pC5Q+YO6T\u002fG6g\u002f0SAnpP55cXgSfAuk\u002fnlxeBJ8C6T8RpcYeZgHpP8ePHz9+\u002fOg\u002f+1jNnuT76D\u002f54IMPPvjoP9CcNSie9ug\u002f9Shcj8L16D\u002fw8PDw8PDoP4eO4cV56Og\u002fabGNnxbb6D9ojdZojdboPzTWh8b60Og\u002fzczMzMzM6D\u002fMzMzMzMzoP\u002fr7vE26y+g\u002fxRhjjDHG6D\u002fCi\u002fPQMbzoP4OLDS42uOg\u002fClnIQhay6D\u002f1yJJ4vq7oPyRbRHPWoOg\u002fN7wUZoCf6D8avSsyX5roP5loookmmug\u002fO0Ni3s6Q6D\u002f7CO4juI\u002foP82INyPejOg\u002fO58eN2N\u002f6D8fGutDY33oP026y5jydeg\u002fbbjhhhtu6D8xqAi31GzoPyjDar0FZeg\u002fZIwxxhhj6D8YhmEYhmHoP9+Fg+jxXeg\u002fdxlTvg5L6D\u002fuaYTlnkboPwqEkXasQOg\u002fA4SVrS5A6D+G5nP98TLoPzE4H4PzMeg\u002fCl5Owcsp6D9YgTDSjhXoP1iBMNKOFeg\u002frYC1AtYK6D+koftg\u002fQboP\u002f\u002f\u002f\u002f\u002f\u002f\u002f\u002f+c\u002f\u002f\u002f\u002f\u002f\u002f\u002f\u002f\u002f5z\u002f\u002f\u002f\u002f\u002f\u002f\u002f\u002f\u002fnP\u002f\u002f\u002f\u002f\u002f\u002f\u002f\u002f+c\u002ffH9jYLX35z\u002fGXrv8SPfnP8Zeu\u002fxI9+c\u002ftr\u002fH7tD25z+XZ39zefbnP8rXYQlH9ec\u002fVhtD0x3s5z8WGw3dB+vnP7+OX8ev4+c\u002ftm3btm3b5z\u002f0BX1BX9DnP9LK5AmIzuc\u002fK0y8HznN5z\u002fzNukuY8rnP1d8xVd8xec\u002fvffee++95z+4t7e3t7fnP+h5nud5nuc\u002fvGBeMC+Y5z\u002fg5RS8nILnP7MWCujYfOc\u002feHd3d3d35z93d3d3d3fnPypLccjYa+c\u002fKM51jOJc5z8UkPCTC1HnPyz3NMJyT+c\u002fLPc0wnJP5z8O9lttDE3nP7oyXZmuTOc\u002fRRdddNFF5z9zBIq2GjznPzGKcx2jOOc\u002fl3Ipl3Ip5z9cQUyuICbnP2uJ3N9aIuc\u002fAQAAAAAg5z\u002f05DsybBDnPw8PDw8PD+c\u002fJ3ACJ3AC5z\u002fo3k3QBv\u002fmP2pjaLqD\u002feY\u002faC+hvYT25j+ONyeUaODmP443J5Ro4OY\u002ftm3btm3b5j+2bdu2bdvmP7Zt27Zt2+Y\u002f11prrbXW5j\u002fMzMzMzMzmP02+bNDky+Y\u002fflps46fF5j9Ga7RGa7TmP5aWlpaWluY\u002ftD\u002faH+2P5j\u002fWaI3WaI3mPzgZRB64iuY\u002faKvBcwSK5j+isT401ofmP3QH+602huY\u002fgaYQaAqB5j8JaCWglYDmPwloJaCVgOY\u002fAQAAAACA5j8jAd+8mnjmP9u2bdu2beY\u002fbbLJJpts5j+zqFnULGrmPxWzHPm5YuY\u002faPJlgyZf5j+Rpg8Kq1vmP2qE5Z5GWOY\u002f8yPdX\u002fhU5j+UNWVNWVPmP0422WSTTeY\u002fOAq8UJpK5j+yEdmIbETmP0REREREROY\u002fca5jFOc65j8gJ5kr5TfmP1xjcY3FNeY\u002fXGNxjcU15j8xxhhjjDHmP3OoWNAcKuY\u002fTUAp6mUk5j9i3K9LKh\u002fmPxzWvmHtG+Y\u002fHNa+Ye0b5j\u002fKsFpvQRnmP4dhGIZhGOY\u002ffBphuacR5j8lGrhFQA\u002fmPyUauEVAD+Y\u002fT4+bsT8M5j+Txiwe1wXmP\u002fb19fX19eU\u002fI6VHlsTz5T8KE+9HTvPlP4TlnkZY7uU\u002fvoxXpy\u002fj5T++jFenL+PlP4md2Imd2OU\u002ffq6Y5cjP5T\u002fBkaIh\u002frjlP1yDxdZgseU\u002fmHg\u002fcpqv5T+ttdZaa63lP5WeWljpqeU\u002flnsaYbmn5T9wi4AerKblPxPaS2gvoeU\u002fehF8CuSf5T86mb5KGJvlP5mZmZmZmeU\u002fjDHGGGOM5T+sHlYPq4flP55aWOmpheU\u002fn0ZY7mmE5T+JBm4R0IPlP2DQF\u002fQFfeU\u002fYe0b1r5h5T8Mq\u002fUWlGHlP6cWVnpqYeU\u002fooFbBPRg5T9VVVVVVVXlP1VVVVVVVeU\u002fVVVVVVVV5T9VVVVVVVXlP6HRr3q5QOU\u002fu\u002fxI9xc+5T+x3NMIyz3lP7Hc0wjLPeU\u002fCqtbFnw95T\u002fmqRTS1zzlPzwlyFOCPOU\u002fMzMzMzMz5T\u002f+UvtL7S\u002flP8RSEUtFLOU\u002fKaWUUkop5T+0Q+DGMijlP7mnEZZ7GuU\u002fmSvlN7YZ5T+5jlGc6xjlP6hZ1CxqFuU\u002fqFnULGoW5T9n69Bvtg7lP6A5VCxoDuU\u002foDlULGgO5T\u002fhR3WJWQvlP6hQoUKFCuU\u002fqFChQoUK5T8IIYQQQgjlP8JyTyMs9+Q\u002fKKxuWfD15D\u002fDSk8trPTkP5unUkhf8+Q\u002fp8JT4anw5D+nwlPhqfDkP+\u002fu7u7u7uQ\u002fm2P2bi3c5D\u002fLPY2w3NPkP8wGTb5s0OQ\u002fzAZNvmzQ5D\u002fMBk2+bNDkP8wGTb5s0OQ\u002fbn+QobLD5D+66KKLLrrkPx\u002fp\u002fsKnsuQ\u002fqqqqqqqq5D+llFJKKaXkP88OgRvLoOQ\u002fzw6BG8ug5D+bbLLJJpvkPzhk7LXLj+Q\u002fOGTstcuP5D84ZOy1y4\u002fkP4102EiHjeQ\u002fiIiIiIiI5D9NMN7KPofkPymkr3kqheQ\u002fNwJS2o2A5D83AlLajYDkP2SulN\u002fYZuQ\u002fZmZmZmZm5D9mZmZmZmbkP+c6RnGuY+Q\u002fA6PONG5g5D8B37yaeFbkPwHfvJp4VuQ\u002fAd+8mnhW5D\u002fYwk3bYVDkP9jCTdthUOQ\u002falrHmxNK5D9ERERERETkP\u002fD2QwJvP+Q\u002f8PZDAm8\u002f5D8QjfWhsT7kPz744IMPPuQ\u002fPvjggw8+5D9eQ3kN5TXkP0o8X1dsNOQ\u002fNAIh7wIs5D+E1bSONyfkP4TVtI43J+Q\u002fhNW0jjcn5D\u002f4NMJyTyPkPyIiIiIiIuQ\u002fIYQQQggh5D\u002fr2SFwYxnkP+vZIXBjGeQ\u002fvLVw03YY5D9l+iphbBbkP6hY0BwqFuQ\u002fS0EHj7oU5D9uZw\u002fniRTkPxQUFBQUFOQ\u002fQNFWg+cI5D+dUKKBWwTkPwAAAAAAAOQ\u002fAAAAAAAA5D8AAAAAAADkPxIwMUSH++M\u002fEjAxRIf74z+FPxP+TPjjP87KT4iz8uM\u002fPp2UTyfl4z\u002f\u002fPTWp6N\u002fjP99777333uM\u002f3t3d3d3d4z8Jyz2NsNzjPwnLPY2w3OM\u002feD9ymq\u002fV4z\u002fU09PT09PjP\u002fQ8z\u002fM8z+M\u002fAAAAAADA4z\u002fPRn1no77jP7y7u7u7u+M\u002fEZZ7GmG54z8RlnsaYbnjPxGWexphueM\u002fGa9OX8ar4z+F2m41faPjP51zzjnnnOM\u002f6MFqWseb4z+Tk5OTk5PjP5OTk5OTk+M\u002fhA8++OCD4z+tTZdgA4HjP8Qfty7vgOM\u002fxB+3Lu+A4z93d3d3d3fjPwAAAAAAYOM\u002f15Q1ZU1Z4z\u002feB+s3wFTjP1NTU1NTU+M\u002fwXgr+xxS4z\u002fRF\u002fQFfUHjP0+B\u002fLPKOOM\u002fT4H8s8o44z9PgfyzyjjjPzMzMzMzM+M\u002fysSV7g0o4z8AAAAAACDjP66a4XbwFOM\u002fxR1xR9wR4z8RERERERHjPxEREREREeM\u002fERERERER4z8RERERERHjP7Ywd5tmC+M\u002fAAAAAAAA4z8AAAAAAADjPxeoQqNf9eI\u002f8\u002fLy8vLy4j+aFC+QSfHiP+\u002fu7u7u7uI\u002fI0VD\u002fHHr4j8jRUP8ceviP+miiy666OI\u002fMi7IuCDj4j8AAAAAAODiPxlnQqT0yOI\u002fGWdCpPTI4j+DAKMd7rbiP60pa8qasuI\u002fFlR7Tqav4j+M4FMg\u002f6ziP6uqqqqqquI\u002fq6qqqqqq4j8AAAAAAKDiP5RSSimllOI\u002fKZ9OyqeT4j8pn07Kp5PiP+LDOitAk+I\u002fkpKSkpKS4j+SkpKSkpLiP5Bbl3fAkeI\u002f\u002flllnAmR4j\u002f+WWWcCZHiP4suuuiii+I\u002fiy666KKL4j9sKK+hvIbiP6BMXOnegOI\u002foExc6d6A4j8AAAAAAIDiPxWgScmifeI\u002fYrmnEZZ74j9x03YYFHXiPwljs6Dac+I\u002fc84555xz4j9zzjnnnHPiP3kpzAA\u002fceI\u002fm7KmrClr4j+ZuNK9AWXiP+NMiJQeWeI\u002f40yIlB5Z4j9SSimllFLiP1JSUlJSUuI\u002fTTbZZJNN4j+SJEmSJEniP1bGmRApPeI\u002fVsaZECk94j9WxpkQKT3iPzIyMjIyMuI\u002fLrrooosu4j+lIpaKWCriPztlqFUYIeI\u002fO2WoVRgh4j8SEhISEhLiP3XulUQqC+I\u002fKl4gk+IF4j86ubwIPgXiPzFCZF\u002fyAeI\u002fAAAAAAAA4j\u002fwwQcffPDhP\u002fDBBx988OE\u002f8MEHH3zw4T\u002fwwQcffPDhP60yzoRI6eE\u002frTLOhEjp4T\u002fij1uXd8DhP+KPW5d3wOE\u002f4o9bl3fA4T\u002fij1uXd8DhP+KPW5d3wOE\u002fi\u002fCP0z3A4T+SJfF8XbHhP5Il8XxdseE\u002fkiXxfF2x4T9sypqypqzhPxDZl3yApOE\u002fW5d3wJGi4T9orA+N9aHhP5NNNtlkk+E\u002f8gKZFC+Q4T\u002fyApkUL5DhP9Wek+mrhOE\u002fb2WfQ2qC4T\u002fKgbpnQYDhP3cYFHVyeeE\u002fdxgUdXJ54T93GBR1cnnhP3cYFHVyeeE\u002fdNFFF1104T9aU9aUNWXhP+Efp3uAY+E\u002fqBGWexph4T+oEZZ7GmHhP+mRJfF8XeE\u002f6ZEl8Xxd4T\u002fpkSXxfF3hP1VVVVVVVeE\u002fVVVVVVVV4T\u002fIrcs74EjhP1ParrOWROE\u002fXAs3bYdB4T9cCzdth0HhP2x4KcwAP+E\u002fNtlkk0024T9OWVPWlDXhP05ZU9aUNeE\u002fTllT1pQ14T8\u002fE\u002f5M+DPhP01c6d6AMuE\u002f2Xw3\u002fKgu4T9Btedk+irhP0G152T6KuE\u002fxZS266wl4T\u002fOhEjpkSXhP86ESOmRJeE\u002fzoRI6ZEl4T88EnnmvCPhPxLnjcR5I+E\u002fuqcRlnsa4T+6pxGWexrhP+ZzytzvDeE\u002fk2BX4csN4T+7vAOOFA3hP0H+WWWcCeE\u002fEC0TRMsE4T8e7rbycf3gPz801ofG+uA\u002fPzTWh8b64D8g2bjUdvbgPzTEH7cu7+A\u002fNMQfty7v4D+zd2vhpu3gP7N3a+Gm7eA\u002fs3dr4abt4D+zd2vhpu3gP3C2Dv1m6+A\u002f2BxItMLm4D\u002fcDTOGuN3gP8w9jbDc0+A\u002fJvF8XbHR4D8m8XxdsdHgPybxfF2x0eA\u002fMQzDMAzD4D8xDMMwDMPgPzDoC\u002fqCvuA\u002fmGqO2bu14D+Yao7Zu7XgPyfTVwljs+A\u002fJ9NXCWOz4D8n01cJY7PgPyfTVwljs+A\u002fgkyKF8ik4D9\u002fjJBeHKLgP3+MkF4couA\u002fCuSfVcaZ4D8K5J9VxpngPwrkn1XGmeA\u002fCuSfVcaZ4D8K5J9VxpngPwrkn1XGmeA\u002fCuSfVcaZ4D8K5J9VxpngPwhucrSSmOA\u002f3dMIyz2N4D\u002fd0wjLPY3gPyPkr9lRi+A\u002fQtNgrBmB4D8GCCtbXYDgP31dsdHQfeA\u002ffV2x0dB94D99XbHR0H3gP31dsdHQfeA\u002fHFAmrnRv4D8cUCaudG\u002fgP+\u002fWwk3bYeA\u002f79bCTdth4D8Y9AV9QV\u002fgP4Z1cqDuWeA\u002f72mE5Z5G4D\u002fvaYTlnkbgP2JQ1MnlReA\u002fYlDUyeVF4D9iUNTJ5UXgP+LkofXMP+A\u002fDigTV7o34D8M+oK+oC\u002fgP0rxApkUL+A\u002fSvECmRQv4D\u002fUyeVF8CngP9TJ5UXwKeA\u002f1MnlRfAp4D8\u002fqkvMWijgPyloGow1I+A\u002fs7XpEmwg4D8HlIkr3RvgP6V4gUyKF+A\u002fR0P3wfoN4D9HQ\u002ffB+g3gP0dD98H6DeA\u002fuwBhZasL4D\u002fmkfiwzgrgPwAAAAAAAOA\u002fAAAAAAAA4D8="},"yaxis":"y","type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"},"margin":{"b":0,"l":0,"r":0,"t":30}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"support"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"confidence"}},"legend":{"tracegroupgap":0},"title":{"text":"Association Rules"}},                        {"responsive": true}                    ).then(function(){
+                            
+var gd = document.getElementById('ebd9937a-05c0-4cf1-b536-714776962318');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };            </script>        </div>
+</div>
+</div>
+<section id="analysis-of-results" class="level2">
+<h2 class="anchored" data-anchor-id="analysis-of-results">Analysis of Results</h2>
+<p><strong>Movie Clusters Discovered</strong>:</p>
+<ol type="1">
+<li><p><strong>Star Wars Trilogy</strong> - Empire Strikes Back, Return of the Jedi, Star Wars form an extremely tight cluster. Watching any two almost guarantees the third.</p></li>
+<li><p><strong>Lucas/Spielberg Universe</strong> - Indiana Jones movies (Raiders, Last Crusade) strongly associate with Star Wars. Makes sense: same creators, same lead actor (Harrison Ford).</p></li>
+<li><p><strong>Sci-Fi Action</strong> - Terminator, Terminator 2, Alien, Aliens cluster together and connect to Star Wars.</p></li>
+<li><p><strong>Cult Classics</strong> - Princess Bride, Monty Python and the Holy Grail frequently co-occur.</p></li>
+<li><p><strong>Prestige Films</strong> - Godfather Part II → Godfather (87% confidence), Shawshank/Schindler’s List cluster.</p></li>
+</ol>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script type="application/vnd.jupyter.widget-state+json">
+{"state":{"00977ae3eb2e40b29703e9ecef21d8ae":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"0173ed3e40054a47bac3453757949351":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","background":null,"description_width":"","font_size":null,"text_color":null}},"0669fa6516db434ba2091acd7d436c46":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"ProgressView","bar_style":"success","description":"","description_allow_html":false,"layout":"IPY_MODEL_00977ae3eb2e40b29703e9ecef21d8ae","max":942,"min":0,"orientation":"horizontal","style":"IPY_MODEL_befc40af71b747a0ac9a3e0cbeeb67ee","tabbable":null,"tooltip":null,"value":942}},"0ae39d86c7b44cd28d78f8a414788ca1":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","bar_color":null,"description_width":""}},"157367a41aad4d6ba80092aba1f50ee8":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HTMLView","description":"","description_allow_html":false,"layout":"IPY_MODEL_95359e1bba034071bb503d5d9ba2341e","placeholder":"​","style":"IPY_MODEL_c8f17e2465a84dbb92b4df1620c686b8","tabbable":null,"tooltip":null,"value":" 942/942 [00:00&lt;00:00, 3080.62it/s]"}},"21ab0d73f9194057aa1a7b37a6676781":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HBoxModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HBoxModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HBoxView","box_style":"","children":["IPY_MODEL_bb846392e3b14550ba893a066b3527b8","IPY_MODEL_ab9f64accf3247d381cfc91ba1e85c57","IPY_MODEL_dcdb7e3ad89a4555a3115d98c0ef5af9"],"layout":"IPY_MODEL_4c29e70b7c194fa7a09b3a82b9ae319c","tabbable":null,"tooltip":null}},"246acc834d17469cb368ef9026acd778":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"268953011c2844ec9c66374c20d7eaf0":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","background":null,"description_width":"","font_size":null,"text_color":null}},"319ca195efc940e2a2ab64842dcc1c0d":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","background":null,"description_width":"","font_size":null,"text_color":null}},"3853bce787be4eef9b412fe50abad36e":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"462b6e5f7ebf4d0f875a0041f5353e7c":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"46bfb502270043f7a6bade3e53c40bb0":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"4962adfb0a8e42a2964a013b37401bfc":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HBoxModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HBoxModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HBoxView","box_style":"","children":["IPY_MODEL_c59a000b8a854ee9a4a883bd6423283f","IPY_MODEL_4d438c69f66245d98e25869b3d984f2f","IPY_MODEL_157367a41aad4d6ba80092aba1f50ee8"],"layout":"IPY_MODEL_3853bce787be4eef9b412fe50abad36e","tabbable":null,"tooltip":null}},"4b7f3cbf077745a1a435136f632b7997":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"4c29e70b7c194fa7a09b3a82b9ae319c":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"4d438c69f66245d98e25869b3d984f2f":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"ProgressView","bar_style":"success","description":"","description_allow_html":false,"layout":"IPY_MODEL_b931f0e45f874f42aecd27ca8fe37bb0","max":942,"min":0,"orientation":"horizontal","style":"IPY_MODEL_f66cd31d656a4cab8bd6252c92696a9c","tabbable":null,"tooltip":null,"value":942}},"51ccc29b51714ab39c41d7e7f30b6261":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","background":null,"description_width":"","font_size":null,"text_color":null}},"5d758aa465c04c87af76049fbbd3d3b8":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"ProgressView","bar_style":"success","description":"","description_allow_html":false,"layout":"IPY_MODEL_fa1038c7480644ba80960091338cb5f9","max":942,"min":0,"orientation":"horizontal","style":"IPY_MODEL_0ae39d86c7b44cd28d78f8a414788ca1","tabbable":null,"tooltip":null,"value":942}},"682ed88a7d5f4827ada98e8a7663dff1":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HBoxModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HBoxModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HBoxView","box_style":"","children":["IPY_MODEL_fe2f14ca5bc0497a8b22b13b69e301ea","IPY_MODEL_5d758aa465c04c87af76049fbbd3d3b8","IPY_MODEL_bd2d160b6c3e40e18fa778d598691883"],"layout":"IPY_MODEL_4b7f3cbf077745a1a435136f632b7997","tabbable":null,"tooltip":null}},"700eb09149bb4c7cab80d1ff97bd3fce":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","bar_color":null,"description_width":""}},"7047f017c4274a9cb66ae40297fb1ee8":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"7c044ecf3d2142bf86a245855844fc64":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"82bb653058cd47aabfce78bbdced5ce4":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","background":null,"description_width":"","font_size":null,"text_color":null}},"8713a6c3a1724ab482e0c4b889a44c43":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","background":null,"description_width":"","font_size":null,"text_color":null}},"95359e1bba034071bb503d5d9ba2341e":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"a1e0953609ef4ab09ac3ea60d9cd3695":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"a5affdea89c1428b86bb03baaf04b982":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"a6f7e020b5fe4ebc8ecbbb0a4710a5af":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HTMLView","description":"","description_allow_html":false,"layout":"IPY_MODEL_462b6e5f7ebf4d0f875a0041f5353e7c","placeholder":"​","style":"IPY_MODEL_268953011c2844ec9c66374c20d7eaf0","tabbable":null,"tooltip":null,"value":" 942/942 [00:00&lt;00:00, 25353.63it/s]"}},"ab9f64accf3247d381cfc91ba1e85c57":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"ProgressView","bar_style":"success","description":"","description_allow_html":false,"layout":"IPY_MODEL_eeb32f40e5f74fca812351956a84a242","max":942,"min":0,"orientation":"horizontal","style":"IPY_MODEL_700eb09149bb4c7cab80d1ff97bd3fce","tabbable":null,"tooltip":null,"value":942}},"b931f0e45f874f42aecd27ca8fe37bb0":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"bb846392e3b14550ba893a066b3527b8":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HTMLView","description":"","description_allow_html":false,"layout":"IPY_MODEL_7047f017c4274a9cb66ae40297fb1ee8","placeholder":"​","style":"IPY_MODEL_319ca195efc940e2a2ab64842dcc1c0d","tabbable":null,"tooltip":null,"value":"Counting supports (k=2): 100%"}},"bd2d160b6c3e40e18fa778d598691883":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HTMLView","description":"","description_allow_html":false,"layout":"IPY_MODEL_a5affdea89c1428b86bb03baaf04b982","placeholder":"​","style":"IPY_MODEL_fbd8c85c9c3f465591ad9271c6c8d300","tabbable":null,"tooltip":null,"value":" 942/942 [00:00&lt;00:00, 2837.07it/s]"}},"befc40af71b747a0ac9a3e0cbeeb67ee":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","bar_color":null,"description_width":""}},"c0fd1df1fecd4391bdc10c0ab93dd994":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"c59a000b8a854ee9a4a883bd6423283f":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HTMLView","description":"","description_allow_html":false,"layout":"IPY_MODEL_46bfb502270043f7a6bade3e53c40bb0","placeholder":"​","style":"IPY_MODEL_82bb653058cd47aabfce78bbdced5ce4","tabbable":null,"tooltip":null,"value":"Counting supports (k=4): 100%"}},"c8f17e2465a84dbb92b4df1620c686b8":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","background":null,"description_width":"","font_size":null,"text_color":null}},"dcdb7e3ad89a4555a3115d98c0ef5af9":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HTMLView","description":"","description_allow_html":false,"layout":"IPY_MODEL_7c044ecf3d2142bf86a245855844fc64","placeholder":"​","style":"IPY_MODEL_51ccc29b51714ab39c41d7e7f30b6261","tabbable":null,"tooltip":null,"value":" 942/942 [00:00&lt;00:00, 4585.75it/s]"}},"eeb32f40e5f74fca812351956a84a242":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"f66cd31d656a4cab8bd6252c92696a9c":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","bar_color":null,"description_width":""}},"f886442c7d6c4b87bbe51bd41e9fa60c":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HTMLView","description":"","description_allow_html":false,"layout":"IPY_MODEL_246acc834d17469cb368ef9026acd778","placeholder":"​","style":"IPY_MODEL_8713a6c3a1724ab482e0c4b889a44c43","tabbable":null,"tooltip":null,"value":"Counting supports (k=1): 100%"}},"fa1038c7480644ba80960091338cb5f9":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"fbd8c85c9c3f465591ad9271c6c8d300":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","background":null,"description_width":"","font_size":null,"text_color":null}},"fc0c206fd9b14347a66fe576dc2cea78":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HBoxModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HBoxModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HBoxView","box_style":"","children":["IPY_MODEL_f886442c7d6c4b87bbe51bd41e9fa60c","IPY_MODEL_0669fa6516db434ba2091acd7d436c46","IPY_MODEL_a6f7e020b5fe4ebc8ecbbb0a4710a5af"],"layout":"IPY_MODEL_a1e0953609ef4ab09ac3ea60d9cd3695","tabbable":null,"tooltip":null}},"fe2f14ca5bc0497a8b22b13b69e301ea":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"HTMLView","description":"","description_allow_html":false,"layout":"IPY_MODEL_c0fd1df1fecd4391bdc10c0ab93dd994","placeholder":"​","style":"IPY_MODEL_0173ed3e40054a47bac3453757949351","tabbable":null,"tooltip":null,"value":"Counting supports (k=3): 100%"}}},"version_major":2,"version_minor":0}
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/galthran-wq\.github\.io\/blog\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
